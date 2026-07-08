@@ -1,0 +1,116 @@
+/* ==========================================================================
+   Hover Title Bar — Content: New Tab landing page
+   --------------------------------------------------------------------------
+   Chrome (toolbars) and content (web pages) are separate documents in
+   Firefox, loaded through separate stylesheets — this file is pulled in
+   by userContent.css, not by theme.css/userChrome.css. It is scoped to
+   about:newtab/about:home/about:privatebrowsing with @-moz-document so
+   it never leaks onto regular websites.
+
+   Activity Stream (the New Tab page) isn't a public/stable API, so the
+   class-name selectors below (search box, top site tiles, cards) may
+   need small tweaks after a major Firefox version bump — see this
+   theme's README.md for how to find the current class names. The
+   body-level background/scrollbar rules don't depend on any of that and
+   will keep working regardless.
+   ========================================================================== */
+
+@-moz-document url("about:newtab"), url("about:home"), url("about:privatebrowsing") {
+
+  :root {
+    --nt-bg-0: #05070d;
+    --nt-bg-1: #0b1020;
+    --nt-accent: #63e6ff;
+    --nt-accent-2: #a78bfa;
+    --nt-glass: rgba(255, 255, 255, 0.06);
+    --nt-glass-border: rgba(255, 255, 255, 0.14);
+    --nt-radius: 16px;
+  }
+
+  /* ---- Background: slow-drifting aurora glow over a near-black base ---- */
+  body {
+    background:
+      radial-gradient(60vmax 60vmax at 15% 20%, rgba(99, 230, 255, 0.16), transparent 60%),
+      radial-gradient(50vmax 50vmax at 85% 75%, rgba(167, 139, 250, 0.16), transparent 60%),
+      linear-gradient(180deg, var(--nt-bg-1), var(--nt-bg-0)) !important;
+    background-attachment: fixed !important;
+    background-size: 200% 200%, 200% 200%, 100% 100% !important;
+    animation: nt-aurora 24s ease-in-out infinite alternate;
+  }
+
+  @keyframes nt-aurora {
+    0%   { background-position: 0% 0%, 100% 100%, center; }
+    100% { background-position: 20% 15%, 80% 85%, center; }
+  }
+
+  /* Faint fixed grid texture behind everything (z-index: -1, so it can
+     never sit on top of real content regardless of page markup). */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(120vmax 80vmax at 50% 0%, black, transparent 70%);
+  }
+
+  /* ---- Search box: glass card with a glow-on-focus ring ---- */
+  .search-wrapper,
+  .search-inner-wrapper,
+  #newtab-search-text-input {
+    background: var(--nt-glass) !important;
+    border: 1px solid var(--nt-glass-border) !important;
+    border-radius: var(--nt-radius) !important;
+    backdrop-filter: blur(20px) saturate(140%);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+    transition: box-shadow 0.25s ease, border-color 0.25s ease;
+  }
+
+  .search-wrapper:focus-within,
+  #newtab-search-text-input:focus {
+    border-color: var(--nt-accent) !important;
+    box-shadow: 0 0 0 3px rgba(99, 230, 255, 0.25), 0 8px 30px rgba(0, 0, 0, 0.35);
+  }
+
+  /* ---- Top sites: floating glass tiles that lift on hover ---- */
+  .top-site-outer .tile {
+    background: var(--nt-glass) !important;
+    border: 1px solid var(--nt-glass-border) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .top-site-outer:hover .tile {
+    transform: translateY(-3px);
+    border-color: var(--nt-accent) !important;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(99, 230, 255, 0.3);
+  }
+
+  .top-site-outer .title {
+    color: rgba(255, 255, 255, 0.75) !important;
+  }
+
+  /* ---- Story/recommendation cards, if that section is enabled ---- */
+  .section-title,
+  .section-title-container {
+    color: rgba(255, 255, 255, 0.7) !important;
+    letter-spacing: 0.02em;
+  }
+
+  .card-outer {
+    background: var(--nt-glass) !important;
+    border: 1px solid var(--nt-glass-border) !important;
+    border-radius: var(--nt-radius) !important;
+  }
+
+  /* ---- Thin accent scrollbar to match the rest of the theme ---- */
+  * {
+    scrollbar-color: var(--nt-accent-2) transparent;
+    scrollbar-width: thin;
+  }
+}

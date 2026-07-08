@@ -1,0 +1,30 @@
+/* ==========================================================================
+   Hover Title Bar — Animations & Reveal Triggers
+   --------------------------------------------------------------------------
+   Reveal conditions, in order of importance:
+     1. :hover        — cursor is over the visible trigger sliver or the
+                         fully-revealed bar itself.
+     2. :focus-within  — keyboard focus is inside the toolbox (e.g. you
+                         Ctrl+L'd into the address bar). Without this the
+                         bar could hide itself while you're mid-typing.
+     3. :has(...)      — a panel/menu anchored to the toolbox is open
+                         (app menu, address bar autocomplete, extension
+                         popups, bookmarks star panel, etc.), so it
+                         doesn't vanish out from under an open menu.
+                         Requires Firefox 121+ (shipped well before the
+                         "latest release" this theme targets).
+   ========================================================================== */
+
+#navigator-toolbox {
+  transition: margin-top var(--hover-titlebar-duration)
+    var(--hover-titlebar-easing) var(--hover-titlebar-hide-delay);
+  will-change: margin-top;
+}
+
+#navigator-toolbox:hover,
+#navigator-toolbox:focus-within,
+#navigator-toolbox:has(panel[panelopen]),
+#navigator-toolbox:has(menupopup[open]) {
+  margin-top: 0 !important;
+  transition-delay: 0s;
+}

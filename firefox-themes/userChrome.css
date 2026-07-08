@@ -1,0 +1,9 @@
+/* ==========================================================================
+   userChrome.css — Main entry point
+   --------------------------------------------------------------------------
+   Do not put theme rules here. This file only wires up config.css, which
+   in turn picks the single active theme. To switch themes, edit
+   config.css — never this file.
+   ========================================================================== */
+
+@import url("config.css");

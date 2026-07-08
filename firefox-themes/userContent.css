@@ -1,0 +1,17 @@
+/* ==========================================================================
+   userContent.css — Content-page entry point
+   --------------------------------------------------------------------------
+   Sibling of userChrome.css, but for a different injection point: Firefox
+   loads chrome (toolbars/windows) and content (web pages) as separate
+   documents, so a theme's content styling can't be @imported from
+   theme.css — it has to be wired up here instead.
+
+   Not every theme needs this file to do anything (most only touch
+   chrome). Keep the import below in sync with whichever theme is active
+   in config.css — if a theme has no content.css, leave everything here
+   commented out.
+   ========================================================================== */
+
+@import url("themes/hover-titlebar/content.css");
+
+/* @import url("themes/_template/content.css"); */

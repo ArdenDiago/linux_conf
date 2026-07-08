@@ -1,0 +1,11 @@
+/* ==========================================================================
+   THEME SWITCHER
+   --------------------------------------------------------------------------
+   Exactly ONE line below should be uncommented at a time. That import
+   decides which theme is active. To switch themes: comment out the
+   current line, uncomment the theme you want, save, and restart Firefox.
+   ========================================================================== */
+
+@import url("themes/hover-titlebar/theme.css");
+
+/* @import url("themes/_template/theme.css"); */

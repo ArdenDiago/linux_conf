@@ -1,0 +1,13 @@
+/* ==========================================================================
+   Theme: <your theme name> — Content (optional)
+   --------------------------------------------------------------------------
+   Only needed if your theme also restyles page content (e.g. the New Tab
+   page), not just chrome/toolbars. Wired up via userContent.css, not
+   theme.css — see ../hover-titlebar/content.css for a worked example.
+   Always scope rules with @-moz-document, or they'll apply to every
+   website you visit:
+
+     @-moz-document url("about:newtab"), url("about:home") {
+       ...
+     }
+   ========================================================================== */

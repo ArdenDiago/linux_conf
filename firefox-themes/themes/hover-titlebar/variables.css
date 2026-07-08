@@ -1,0 +1,32 @@
+/* ==========================================================================
+   Hover Title Bar — Variables
+   --------------------------------------------------------------------------
+   Tune these to match your own Firefox setup. If you run a bookmarks
+   toolbar, extra extensions, large text/UI scaling, or multiple toolbar
+   rows, --hover-titlebar-height is almost certainly too small for you —
+   see the "Tuning" section in this theme's README.md.
+   ========================================================================== */
+
+:root {
+  /* Combined height (px) of everything that lives inside #navigator-toolbox:
+     titlebar + window controls, tab bar, nav-bar/address bar, and (if
+     enabled) the personal bookmarks toolbar. This MUST be >= the real
+     rendered height or a strip of chrome will stay permanently visible. */
+  --hover-titlebar-height: 92px;
+
+  /* How many pixels of the toolbox stay in the document flow at the top
+     edge of the window while "hidden". This sliver is invisible to the
+     eye (it renders as the plain toolbar background) but is exactly
+     what your cursor hovers over to trigger the reveal. Keep this small
+     but non-zero — 0 would leave nothing to hover over. */
+  --hover-titlebar-trigger: 2px;
+
+  /* Reveal is instant on hover-in; hiding waits this long after the
+     cursor leaves so the bar doesn't flicker shut while you're moving
+     toward a menu item or the address bar. */
+  --hover-titlebar-hide-delay: 0.4s;
+
+  /* Animation speed/feel for both showing and hiding. */
+  --hover-titlebar-duration: 0.25s;
+  --hover-titlebar-easing: cubic-bezier(0.22, 0.61, 0.36, 1);
+}

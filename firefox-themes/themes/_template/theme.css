@@ -1,0 +1,16 @@
+/* ==========================================================================
+   Theme: <your theme name>
+   --------------------------------------------------------------------------
+   Copy this whole _template/ folder to themes/<your-theme-name>/, then:
+     1. Rename this comment header.
+     2. Split your rules into variables.css / layout.css / animations.css
+        (or fewer/more files — this split is a convention, not a
+        requirement) and @import them below.
+     3. Point config.css at your new theme's theme.css to activate it.
+   See ../hover-titlebar/ for a fully worked example, including a
+   README.md documenting how its effect works.
+   ========================================================================== */
+
+/* @import url("variables.css"); */
+/* @import url("layout.css"); */
+/* @import url("animations.css"); */

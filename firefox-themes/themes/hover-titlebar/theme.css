@@ -1,0 +1,22 @@
+/* ==========================================================================
+   Theme: Hover Title Bar
+   --------------------------------------------------------------------------
+   Hides the entire top chrome (titlebar, window controls, tab bar,
+   nav-bar, address bar, extension icons, overflow menu, and bookmarks
+   toolbar if enabled) and reveals it with a smooth slide-down when the
+   cursor touches the top edge of the window. See README.md in this
+   folder for the full explanation and tuning guide.
+
+   This is the theme's own entry point — config.css imports only this
+   file, which then pulls in its own partials. Keeps every theme
+   self-contained and independently swappable.
+
+   Note: this theme also ships content.css (New Tab page styling), but
+   that file is wired up separately through ../../userContent.css, not
+   through this file — chrome and content are separate injection points
+   in Firefox and can't @import each other.
+   ========================================================================== */
+
+@import url("variables.css");
+@import url("layout.css");
+@import url("animations.css");

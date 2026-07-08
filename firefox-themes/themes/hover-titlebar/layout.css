@@ -1,0 +1,33 @@
+/* ==========================================================================
+   Hover Title Bar — Layout
+   --------------------------------------------------------------------------
+   #navigator-toolbox is the single container Firefox uses for everything
+   we need to hide: #titlebar (window controls + tab bar), #nav-bar
+   (back/forward, address bar, extension icons, overflow chevron) and,
+   if enabled, #PersonalToolbar (bookmarks bar). Hiding this one element
+   hides all of it — no need to target each child separately.
+
+   The collapse trick: giving the toolbox a negative top margin equal to
+   its own height shrinks its margin-box to ~0, so it contributes ~0
+   height to normal document flow. #tabbrowser-tabbox (the page content)
+   sits right after it in flow and automatically slides up to fill that
+   space — no manual resizing of the content area is required, and no
+   empty gap is left behind. See variables.css for the height/trigger
+   numbers and this theme's README.md for how the math works.
+   ========================================================================== */
+
+#navigator-toolbox {
+  position: relative;
+  z-index: 2;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  margin-top: calc(
+    -1 * (var(--hover-titlebar-height) - var(--hover-titlebar-trigger))
+  ) !important;
+}
+
+/* Keep the window control buttons (minimize/maximize/close) painting
+   above the tab strip's own shadow/edge during the transition. */
+.titlebar-buttonbox-container {
+  z-index: 3;
+}
