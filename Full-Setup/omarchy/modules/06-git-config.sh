@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 #
 # Git identity (asked interactively rather than hardcoded) plus an ed25519
-# SSH key for GitHub, tagged with that same email. Both are idempotent:
-# re-running this script won't re-prompt or regenerate a key that's
-# already there.
+# SSH key for GitHub, tagged with that same email, plus the GitHub CLI
+# (gh) itself, logged in. All three are idempotent: re-running this
+# script won't re-prompt, regenerate a key, or re-auth if already done.
 #
-MODULE_DESC="Git identity + SSH key"
+MODULE_DESC="Git identity + SSH key + GitHub CLI"
 
 module_step() {
-  pac_install git openssh || return 1
+  pac_install git openssh github-cli || return 1
 
   local name email
 
@@ -54,6 +54,16 @@ module_step() {
 
   if command -v wl-copy &>/dev/null; then
     wl-copy < "$key.pub" && log "Copied to clipboard."
+  fi
+
+  if gh auth status &>/dev/null; then
+    log "GitHub CLI already authenticated: $(gh auth status 2>&1 | grep -o 'as [^ ]*' | head -1)"
+  elif [ ! -t 0 ]; then
+    warn "Not running interactively — skipping 'gh auth login'."
+    warn "Run it yourself later: gh auth login"
+  else
+    log "Logging in to the GitHub CLI..."
+    gh auth login || warn "gh auth login failed or was cancelled — you can retry any time with: gh auth login"
   fi
 
   return 0
