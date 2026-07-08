@@ -2,8 +2,11 @@
 #
 # Git identity (asked interactively rather than hardcoded) plus an ed25519
 # SSH key for GitHub, tagged with that same email, plus the GitHub CLI
-# (gh) itself, logged in. All three are idempotent: re-running this
-# script won't re-prompt, regenerate a key, or re-auth if already done.
+# (gh) itself. Auth is deliberately not automated here — 'gh auth login'
+# opens a browser and blocks waiting on the user, which defeats an
+# unattended run — so this just prints the key/instructions and lets the
+# user log in on their own time. All steps are idempotent: re-running this
+# script won't re-prompt or regenerate a key if already done.
 #
 MODULE_DESC="Git identity + SSH key + GitHub CLI"
 
@@ -53,17 +56,17 @@ module_step() {
   echo
 
   if command -v wl-copy &>/dev/null; then
-    wl-copy < "$key.pub" && log "Copied to clipboard."
+    # wl-copy forks a background daemon to keep serving the clipboard; left
+    # unredirected it inherits stdout/stderr from run_step's tee pipe, which
+    # then never sees EOF and hangs the whole step waiting on that fd.
+    wl-copy < "$key.pub" >/dev/null 2>&1 && log "Copied to clipboard."
   fi
 
   if gh auth status &>/dev/null; then
     log "GitHub CLI already authenticated: $(gh auth status 2>&1 | grep -o 'as [^ ]*' | head -1)"
-  elif [ ! -t 0 ]; then
-    warn "Not running interactively — skipping 'gh auth login'."
-    warn "Run it yourself later: gh auth login"
   else
-    log "Logging in to the GitHub CLI..."
-    gh auth login || warn "gh auth login failed or was cancelled — you can retry any time with: gh auth login"
+    warn "GitHub CLI not authenticated — 'gh auth login' opens a browser and waits for you, so it's not run here."
+    warn "Log in yourself whenever you're ready: gh auth login"
   fi
 
   return 0
