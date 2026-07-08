@@ -32,7 +32,7 @@ TMPDIR="$(mktemp -d)"
 export TMPDIR
 trap 'rm -rf "$TMPDIR"' EXIT
 
-log "Running Omarchy setup"
+banner
 
 shopt -s nullglob
 module_files=("$MODULES_DIR"/*.sh)
@@ -43,7 +43,13 @@ if [ "${#module_files[@]}" -eq 0 ]; then
   exit 1
 fi
 
+total_modules="${#module_files[@]}"
+idx=0
+run_start="$SECONDS"
+
 for module in "${module_files[@]}"; do
+  idx=$((idx + 1))
+
   # shellcheck source=/dev/null
   source "$module"
 
@@ -53,8 +59,16 @@ for module in "${module_files[@]}"; do
   fi
 
   step_name="${MODULE_DESC:-$(basename "$module")}"
-  log "$step_name"
+  echo -e "\n${C_DIM}[$idx/$total_modules]${C_RESET} ${C_BOLD}${C_CYAN}${step_name}${C_RESET}"
+
+  before_failures="${#FAILED_STEPS[@]}"
+  step_start="$SECONDS"
   run_step "$step_name" module_step
+  step_elapsed=$(( SECONDS - step_start ))
+
+  if [ "${#FAILED_STEPS[@]}" -eq "$before_failures" ]; then
+    ok "${step_name} ${C_DIM}($(format_duration "$step_elapsed"))${C_RESET}"
+  fi
 
   # Unset so a module that forgets to define one of these can't silently
   # reuse the previous module's leftovers.
@@ -62,13 +76,19 @@ for module in "${module_files[@]}"; do
   unset MODULE_DESC
 done
 
+total_elapsed=$(( SECONDS - run_start ))
+succeeded=$(( total_modules - ${#FAILED_STEPS[@]} ))
+
 echo
 if [ "${#FAILED_STEPS[@]}" -eq 0 ]; then
-  log "Setup complete. All steps succeeded."
+  summary_box "${C_BOLD}${C_GREEN}" \
+    "✓ All $total_modules/$total_modules steps completed" \
+    "Total time: $(format_duration "$total_elapsed")"
 else
-  warn "Setup finished, but these steps had issues (see [FAIL]/[WARN] above for details):"
+  summary_lines=("⚠ $succeeded/$total_modules steps completed" "Total time: $(format_duration "$total_elapsed")" "" "Needs another look:")
   for s in "${FAILED_STEPS[@]}"; do
-    warn "  - $s"
+    summary_lines+=("  ✖ $s")
   done
-  log "Everything else completed. Re-run this script any time — it's safe and will skip what's already done."
+  summary_box "${C_BOLD}${C_YELLOW}" "${summary_lines[@]}"
+  echo -e "${C_DIM}Re-run this script any time — it's safe and will skip what's already done.${C_RESET}"
 fi
