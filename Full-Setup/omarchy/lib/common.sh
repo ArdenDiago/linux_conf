@@ -150,6 +150,25 @@ ensure_on_path() {
   return 1
 }
 
+# install_dotfile <src> <dest>
+# Copies src over dest. Skips if they're already identical. If dest exists
+# and differs, backs it up to dest.bak — but only the first time, so the
+# backup always holds whatever was there before this script ever touched
+# it, not a stale copy from a previous run.
+install_dotfile() {
+  local src="$1" dest="$2"
+  if [ -f "$dest" ] && cmp -s "$src" "$dest"; then
+    log "$(basename "$dest") already up to date, skipping."
+    return 0
+  fi
+  if [ -f "$dest" ] && [ ! -f "$dest.bak" ]; then
+    cp "$dest" "$dest.bak"
+    warn "Backed up your existing $(basename "$dest") to $(basename "$dest").bak"
+  fi
+  cp "$src" "$dest"
+  log "Installed $(basename "$dest")."
+}
+
 # ---------------------------------------------------------------------------
 # Step runner. Captures the step's combined output (so it can be written to
 # ERROR_LOG on failure) while still streaming it live to the terminal, runs

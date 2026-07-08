@@ -1,0 +1,180 @@
+@import "../omarchy/current/theme/waybar.css";
+
+window#waybar {
+  background-color: transparent;
+}
+
+#omarchy-island,
+#workspaces-island,
+#theme-island,
+#clock-island,
+#info-island,
+#utils,
+#hardware,
+#omarchy-grp,
+#workspaces-grp,
+#theme-grp {
+  background-color: alpha(@background, 0.8);
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0 9px;
+  margin: 0 5px;
+}
+
+#omarchy-island {
+  padding: 0 12px;
+}
+
+.modules-left,
+.modules-right {
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+}
+
+* {
+  background-color: transparent;
+  color: @foreground;
+
+  border: none;
+  border-radius: 0;
+  min-height: 0;
+  font-family: 'JetBrainsMono Nerd Font';
+  font-size: 14px;
+}
+
+#workspaces button {
+  all: initial;
+  padding: 0 5px;
+  margin: 0 2px;
+  min-width: 8px;
+}
+
+#workspaces button.empty {
+  opacity: 0.5;
+}
+
+#clock {
+  background-color: alpha(@background, 0.8);
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0 10px;
+  margin: 0 5px;
+}
+
+#group-hardware,
+#memory,
+#cpu,
+#battery,
+#pulseaudio,
+#custom-omarchy,
+#custom-update,
+#bluetooth,
+#network {
+  background-color: transparent;
+  border-radius: 15px;
+  min-width: 12px;
+  margin: 0 5px;
+}
+
+#tray {
+  margin: 0 6px;
+}
+
+#custom-expand-icon {
+  margin-right: 6px;
+}
+
+tooltip {
+  background-color: alpha(@background, 0.8);
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 4px;
+}
+
+#custom-update {
+  background-color: alpha(@background, 0.8);
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0 10px;
+  margin: 0 5px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #ecc6d9;
+}
+
+.hidden {
+  opacity: 0;
+}
+
+#custom-theme {
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+#custom-media {
+  color: #1DB954; /* Spotify Green */
+  background-color: alpha(@background, 0.8);
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0 8px;
+  margin: 0 5px;
+  font-size: 14px;
+}
+
+#custom-media.playing {
+  color: #1DB954;
+}
+
+#custom-media.paused {
+  color: #666666;
+}
+
+#custom-nightlight {
+  min-width: 12px;
+  margin: 0 5px;
+}
+
+#custom-nightlight.active {
+  color: #a55555;
+}
+
+#custom-screenrecording-indicator,
+#custom-idle-indicator,
+#custom-notification-silencing-indicator {
+  min-width: 12px;
+  margin: 0 4px;
+  font-size: 11px;
+  padding-bottom: 1px;
+}
+
+#custom-screenrecording-indicator.active {
+  color: #a55555;
+}
+
+#custom-idle-indicator.active,
+#custom-notification-silencing-indicator.active {
+  color: #a55555;
+}
+
+#custom-voxtype {
+  min-width: 12px;
+  margin: 0 0 0 7.5px;
+}
+
+#custom-voxtype.recording {
+  color: #a55555;
+}
+
+#custom-weather {
+  min-width: 12px;
+  margin: 0 5px;
+}
+
+#custom-weather.unavailable {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+}
