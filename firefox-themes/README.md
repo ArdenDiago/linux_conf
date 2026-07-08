@@ -77,6 +77,8 @@ only has an active import if the current theme ships a `content.css`.
 | Preference                | Value | Why                                                                                     |
 |----------------------------|-------|-------------------------------------------------------------------------------------------|
 | `browser.tabs.inTitlebar`  | `1`   | Draws window controls (minimize/maximize/close) as part of Firefox's own chrome, inside `#navigator-toolbox`, so this theme can hide/reveal them. Default is `1` on Windows/macOS and most Linux desktop environments with client-side decorations; some Linux window managers without CSD support may need it set explicitly, and a few won't support in-content window controls at all (see that theme's README for the caveat). |
+| `browser.newtabpage.activity-stream.improvesearch.handoffToAwesomebar` | `false` | Firefox's default hands typing in the New Tab search box off to the real address bar — since this theme hides the chrome by default, that handoff reveals the address bar mid-type and your query ends up typed there instead of in the on-page search box. Setting this `false` reverts the New Tab search box to a fully self-contained input: it handles typing and submits the search itself, no handoff, no surprise chrome reveal. |
+| `browser.newtabpage.activity-stream.showWeather` and `browser.newtabpage.activity-stream.system.showWeather` | `false` | `content.css` hides the weather widget and the "Customize new tab" gear with CSS, but that still lets Firefox fetch/render them before the stylesheet hides them. Turning both off (Firefox ships two tiers of this pref) stops that at the source instead of just hiding the result. |
 
 ## Switching themes
 

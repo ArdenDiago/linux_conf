@@ -21,32 +21,60 @@ Firefox nests everything we want to hide inside one element:
 `#navigator-toolbox` (titlebar + window buttons + tabs, nav-bar, and the
 optional bookmarks toolbar). Hiding that single element hides all of it.
 
-The trick is a **negative top margin equal to the toolbox's own height**:
+The bookmarks toolbar (`#PersonalToolbar`) gets one extra rule on top of
+that: `display: none !important;`, always on, not part of the hover
+reveal at all. Firefox's default `browser.toolbars.bookmarks.visibility`
+is `"newtab"`, which shows that bar only while `about:newtab` is the
+active tab — since that's exactly the page this theme is built around,
+it was popping back up and throwing off the `--hover-titlebar-height`
+math (see Tuning below). Forcing it off sidesteps that regardless of
+what the preference is set to.
+
+The trick is **taking the toolbox out of document flow entirely** and
+sliding it by animating `top`:
 
 ```css
 #navigator-toolbox {
-  margin-top: calc(-1 * (var(--hover-titlebar-height) - var(--hover-titlebar-trigger)));
+  position: fixed;
+  top: calc(-1 * (var(--hover-titlebar-height) - var(--hover-titlebar-trigger)));
+  left: 0; right: 0;
+}
+#tabbrowser-tabbox {
+  margin-top: var(--hover-titlebar-trigger) !important;
 }
 ```
 
-In CSS, an element's margin-top does not just move it visually — it also
-changes how much vertical space it reserves in normal document flow.
-When margin-top is the *negative* of the element's own height, its
-margin-box collapses to roughly zero, so the page content sitting right
-below it (`#tabbrowser-tabbox`) automatically slides up to fill the
-freed space. That's why:
+Because `#navigator-toolbox` is `position: fixed`, it no longer occupies
+any space in normal document flow, so it can never push
+`#tabbrowser-tabbox` (the page content) around. The content area gets
+exactly one fixed, permanent top offset — `--hover-titlebar-trigger`
+(6px by default) — and that's it; it never changes size or position
+again, whether the bar is hidden or revealed. That's what keeps the
+window feeling like a fixed-size screen instead of reflowing/"shaking"
+on every hover.
 
-- there's no empty gap left behind while the bar is hidden, and
-- the content area resizes correctly with no manual height math on the
-  content side.
+It's animated via `top` rather than `transform` deliberately: a real
+`transform` on `#navigator-toolbox` would create a CSS containing block
+for any `position: fixed` descendant, which would trap the `::after`
+hint chevron (see below) inside the toolbox's own `overflow: hidden`
+instead of letting it stay pinned to the viewport. `top` has no such
+side effect.
 
-We don't push the margin *all* the way to `-height`, though — we leave
-`--hover-titlebar-trigger` (2px by default) of margin unclaimed. That
-means a hairline sliver of the toolbox's own background stays inside
-the visible window at y=0. It's imperceptible to the eye, but it's real
-DOM under your cursor — hover over it and `:hover` fires on
-`#navigator-toolbox`, `margin-top` animates to `0`, and the whole bar
-slides into view, pushing the page content back down.
+That same `--hover-titlebar-trigger` gap is also the thin sliver of the
+toolbox's own background that stays visible at y=0 — real DOM under
+your cursor. Hover over it and `:hover` fires on `#navigator-toolbox`,
+`top` animates to `0`, and the whole bar slides down *on top of* the
+page content (it paints above it, per the toolbox's `z-index`) rather
+than displacing it.
+
+A plain sliver with nothing else around it isn't very discoverable on
+its own, though, so a small chevron sits just below it — a gentle
+bobbing arrow parked at the top-center of the window that fades out the
+moment the bar is actually revealed (and respects
+`prefers-reduced-motion`). It's rendered as `#navigator-toolbox::after`
+but positioned `fixed` rather than `absolute`, which is what lets it
+escape the toolbox's own `overflow: hidden` and sit against the window
+instead of getting clipped along with the collapsed bar.
 
 Everything else in `animations.css` is about not hiding the bar out
 from under you:
@@ -88,11 +116,14 @@ the layout panel.
 
 Since this theme hides the chrome, the New Tab page is what you mostly
 look at, so it gets its own look: a dark, slowly drifting aurora
-background, a faint fixed grid texture, glassmorphic (blurred,
-translucent) search box and top-site tiles with a glow-on-hover/focus
-accent, and a matching thin accent scrollbar. Colors live in a `:root`
-block at the top of `content.css` (`--nt-accent`, `--nt-accent-2`,
-`--nt-bg-0/1`) — change those to retheme it.
+background and a faint fixed grid texture behind a single glassmorphic
+(blurred, translucent) search box, dead-centered in the viewport with a
+glow-on-hover/focus accent. Everything else Activity Stream normally
+shows — the Firefox logo/wordmark, top-site tiles, and Pocket
+story/recommendation cards — is hidden so the search box is the only
+thing on the page. Colors live in a `:root` block at the top of
+`content.css` (`--nt-accent`, `--nt-accent-2`, `--nt-bg-0/1`) — change
+those to retheme it.
 
 This is wired through `userContent.css` at the project root, not
 `theme.css`, because Firefox loads chrome and page content as separate
@@ -100,14 +131,16 @@ documents (see the root `README.md`). It's scoped with `@-moz-document`
 to `about:newtab` / `about:home` / `about:privatebrowsing` only.
 
 Activity Stream (the New Tab page) isn't a stable public API — its
-internal class names (`.search-wrapper`, `.top-site-outer`, `.tile`,
-`.card-outer`, etc.) have stayed the same for years but *can* shift on
-a major Firefox version bump. If a selector stops matching after an
-update, open `about:newtab`, open the Browser Toolbox
-(`devtools.chrome.enabled` → `true` in `about:config`, then
-Ctrl+Shift+Alt+I), inspect the element in question, and swap in
-whatever class name it's using now. The background/scrollbar rules
-target `body` directly and don't depend on any of this.
+internal class names (`.search-wrapper`, `.logo-and-wordmark`,
+`.top-sites`, `.sections`, etc.) have stayed the same for years but
+*can* shift on a major Firefox version bump. If a selector stops
+matching after an update — e.g. a hidden section reappears, or the
+search box snaps back to its default top-of-page position — open
+`about:newtab`, open the Browser Toolbox (`devtools.chrome.enabled` →
+`true` in `about:config`, then Ctrl+Shift+Alt+I), inspect the element
+in question, and swap in whatever class name it's using now. The
+background/scrollbar rules target `body` directly and don't depend on
+any of this.
 
 ## Limitations
 

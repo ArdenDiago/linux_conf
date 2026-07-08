@@ -58,54 +58,148 @@
     mask-image: radial-gradient(120vmax 80vmax at 50% 0%, black, transparent 70%);
   }
 
-  /* ---- Search box: glass card with a glow-on-focus ring ---- */
-  .search-wrapper,
-  .search-inner-wrapper,
+  /* ---- Only-search mode: hide everything but the search box ----
+     Top sites, the Firefox logo/wordmark, the Pocket story/card section,
+     the weather widget, and the "Customize new tab" settings gear are
+     all part of Activity Stream's layout alongside the search box. We
+     hide them outright rather than just visually (so they don't reserve
+     layout space). If a Firefox update renames these containers, open
+     about:newtab with the Browser Toolbox (see this theme's README.md)
+     and re-check the class names below — .search-wrapper itself has
+     been stable for years. */
+  .logo-and-wordmark,
+  .top-sites,
+  .sections,
+  .ds-outer-wrapper-breakpoint-override,
+  .weather,
+  [data-section-id="weather"],
+  #customize-button,
+  .customize-menu-button,
+  .personalize-button {
+    display: none !important;
+  }
+
+  /* ---- Search box: glass card with a glow-on-focus ring, centered ----
+     Deliberately NOT `position: fixed` here. Activity Stream is
+     React-rendered, and the search box's actual click/focus handling
+     (it hands off to the real address bar under the hood) appears to be
+     wired up relative to its original in-flow position rather than
+     purely CSS visual position — pulling it out of flow with `fixed`
+     left a glass card that looked centered but didn't respond to clicks
+     at all, because the real hit target stayed behind at its original
+     spot. Centering with margin instead keeps it in normal document
+     flow, so nothing about its interactivity changes — only where its
+     box sits. 38vh is a starting point, not exact (the layout above it
+     collapses differently once top-sites/sections are hidden) — nudge
+     it up/down to land it dead-center for your window size. */
+  /* .search-wrapper is layout only — no background/border of its own —
+     so there's exactly one visible box (.search-inner-wrapper) instead
+     of two nested cards stacked on top of each other. A pill shape reads
+     more like a deliberate command bar (Spotlight/Raycast-style) than a
+     generic rounded-rect input, which fits a page that's *only* a search
+     box. The soft halo behind it borrows the two aurora accent colors
+     from the body background so the bar looks lit from within the page
+     rather than pasted on top of it. */
+  .search-wrapper {
+    position: relative;
+    margin: 38vh auto 0 !important;
+    width: min(560px, 88vw) !important;
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .search-wrapper::before {
+    content: "";
+    position: absolute;
+    inset: -28px -12px;
+    z-index: -1;
+    background:
+      radial-gradient(60% 160% at 28% 50%, rgba(99, 230, 255, 0.18), transparent 70%),
+      radial-gradient(60% 160% at 72% 50%, rgba(167, 139, 250, 0.16), transparent 70%);
+    filter: blur(20px);
+    pointer-events: none;
+  }
+
+  .search-inner-wrapper {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.04)) !important;
+    border: 1px solid var(--nt-glass-border) !important;
+    border-radius: 999px !important;
+    backdrop-filter: blur(24px) saturate(160%);
+    box-shadow:
+      0 14px 40px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+    padding: 15px 24px !important;
+    transition: box-shadow 0.3s cubic-bezier(0.22, 0.61, 0.36, 1),
+                border-color 0.3s ease,
+                transform 0.3s cubic-bezier(0.22, 0.61, 0.36, 1),
+                background 0.3s ease;
+  }
+
+  /* With handoff disabled (see README.md's preferences table),
+     Activity Stream renders the local input inside a `.non-handoff-container`
+     wrapper. Firefox's own stylesheet for it lives inside a shadow root
+     (`:host([nonhandoff]) & .non-handoff-container { ... }`), which only
+     applies from *inside* that component's own shadow-DOM stylesheet —
+     `:host()` is meaningless from an external page-level stylesheet like
+     this one, so it's dropped here and only the actual layout rule is
+     kept. Without this, `.non-handoff-container` doesn't reliably fill
+     `.search-inner-wrapper`'s height, and the icon/input can end up
+     misaligned inside the pill. */
+  .non-handoff-container {
+    display: flex !important;
+    flex: 1 !important;
+    height: 2.5em !important;
+  }
+
+  .search-inner-wrapper:hover {
+    border-color: rgba(255, 255, 255, 0.24) !important;
+  }
+
+  .search-inner-wrapper:focus-within {
+    transform: translateY(-2px);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.06)) !important;
+    border-color: var(--nt-accent) !important;
+    box-shadow:
+      0 18px 48px rgba(0, 0, 0, 0.45),
+      0 0 0 3px rgba(99, 230, 255, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  /* The actual input sits inside .search-inner-wrapper — reset it to
+     transparent so it reads as one box, not a third one nested inside. */
   #newtab-search-text-input {
-    background: var(--nt-glass) !important;
-    border: 1px solid var(--nt-glass-border) !important;
-    border-radius: var(--nt-radius) !important;
-    backdrop-filter: blur(20px) saturate(140%);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
-    transition: box-shadow 0.25s ease, border-color 0.25s ease;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: rgba(255, 255, 255, 0.95) !important;
+    font-size: 1.05rem !important;
+    letter-spacing: 0.01em;
   }
 
-  .search-wrapper:focus-within,
-  #newtab-search-text-input:focus {
-    border-color: var(--nt-accent) !important;
-    box-shadow: 0 0 0 3px rgba(99, 230, 255, 0.25), 0 8px 30px rgba(0, 0, 0, 0.35);
+  #newtab-search-text-input::placeholder {
+    color: rgba(255, 255, 255, 0.38) !important;
   }
 
-  /* ---- Top sites: floating glass tiles that lift on hover ---- */
-  .top-site-outer .tile {
-    background: var(--nt-glass) !important;
-    border: 1px solid var(--nt-glass-border) !important;
-    border-radius: 14px !important;
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  /* Firefox's built-in magnifier icon renders dark by default — invert
+     it so it reads correctly against the dark glass instead of vanishing. */
+  .search-button,
+  .search-magnifier-icon {
+    filter: invert(1);
+    opacity: 0.55;
   }
 
-  .top-site-outer:hover .tile {
-    transform: translateY(-3px);
-    border-color: var(--nt-accent) !important;
-    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(99, 230, 255, 0.3);
-  }
-
-  .top-site-outer .title {
-    color: rgba(255, 255, 255, 0.75) !important;
-  }
-
-  /* ---- Story/recommendation cards, if that section is enabled ---- */
-  .section-title,
-  .section-title-container {
-    color: rgba(255, 255, 255, 0.7) !important;
-    letter-spacing: 0.02em;
-  }
-
-  .card-outer {
-    background: var(--nt-glass) !important;
-    border: 1px solid var(--nt-glass-border) !important;
-    border-radius: var(--nt-radius) !important;
+  @media (prefers-reduced-motion: reduce) {
+    .search-inner-wrapper {
+      transition: none;
+    }
+    .search-inner-wrapper:focus-within {
+      transform: none;
+    }
   }
 
   /* ---- Thin accent scrollbar to match the rest of the theme ---- */

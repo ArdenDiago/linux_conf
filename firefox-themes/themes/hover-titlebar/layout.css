@@ -7,23 +7,51 @@
    if enabled, #PersonalToolbar (bookmarks bar). Hiding this one element
    hides all of it — no need to target each child separately.
 
-   The collapse trick: giving the toolbox a negative top margin equal to
-   its own height shrinks its margin-box to ~0, so it contributes ~0
-   height to normal document flow. #tabbrowser-tabbox (the page content)
-   sits right after it in flow and automatically slides up to fill that
-   space — no manual resizing of the content area is required, and no
-   empty gap is left behind. See variables.css for the height/trigger
-   numbers and this theme's README.md for how the math works.
+   The overlay trick: #navigator-toolbox is taken out of document flow
+   with `position: fixed` and slid up/down by animating `top` (not
+   `transform` — a real `transform` on this element would create a CSS
+   containing block for any `position: fixed` descendant, which would
+   trap the ::after hint chevron in animations.css inside this box's own
+   `overflow: hidden` instead of letting it stay pinned to the viewport;
+   `top` doesn't have that side effect). Because the toolbox is out of
+   flow, it never pushes #tabbrowser-tabbox (the actual page content)
+   around — the content area is given one fixed, permanent top offset
+   (below) equal to --hover-titlebar-trigger and never changes size or
+   position again. The revealed bar simply paints on top of the page
+   instead of shoving it down and back up, so there's no reflow/"shake"
+   on hover. See variables.css for the height/trigger numbers and this
+   theme's README.md for how the math works.
    ========================================================================== */
 
 #navigator-toolbox {
-  position: relative;
+  position: fixed;
+  top: calc(
+    -1 * (var(--hover-titlebar-height) - var(--hover-titlebar-trigger))
+  );
+  left: 0;
+  right: 0;
   z-index: 2;
   overflow: hidden;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-  margin-top: calc(
-    -1 * (var(--hover-titlebar-height) - var(--hover-titlebar-trigger))
-  ) !important;
+}
+
+/* Fixed, permanent reservation for the trigger sliver — this is the only
+   space the page content ever gives up, and it never animates, so the
+   content area stays a constant size whether the bar is hidden or
+   revealed. */
+#tabbrowser-tabbox {
+  margin-top: var(--hover-titlebar-trigger) !important;
+}
+
+/* Bookmarks toolbar: hidden outright, never part of the hover reveal.
+   Firefox's default `browser.toolbars.bookmarks.visibility` is "newtab" —
+   it shows #PersonalToolbar only while the active tab is about:newtab,
+   which changes #navigator-toolbox's real height on exactly the page
+   this theme is built around and breaks the fixed --hover-titlebar-height
+   math (a strip stays stuck visible). Forcing it off here avoids that
+   entirely and keeps the bar out of the way regardless of the pref. */
+#PersonalToolbar {
+  display: none !important;
 }
 
 /* Keep the window control buttons (minimize/maximize/close) painting

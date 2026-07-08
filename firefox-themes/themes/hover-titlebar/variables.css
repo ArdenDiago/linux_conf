@@ -9,17 +9,34 @@
 
 :root {
   /* Combined height (px) of everything that lives inside #navigator-toolbox:
-     titlebar + window controls, tab bar, nav-bar/address bar, and (if
-     enabled) the personal bookmarks toolbar. This MUST be >= the real
-     rendered height or a strip of chrome will stay permanently visible. */
-  --hover-titlebar-height: 92px;
+     titlebar + window controls, tab bar, and nav-bar/address bar. (The
+     bookmarks toolbar is force-hidden in layout.css and never contributes
+     to this, regardless of Firefox's own bookmarks-bar visibility pref.)
+
+     This has two failure modes, and they look nothing alike:
+       - Too SMALL: a visible strip of chrome stays stuck on screen —
+         harmless, just ugly, and obvious to spot.
+       - Too LARGE: the toolbox gets pushed above the top of the window
+         with nothing left inside it to hover over, so the bar can never
+         be revealed again — looks like hovering does nothing at all.
+     Given that, prefer erring small when guessing. On this system, 92px
+     overshot (toolbox vanished, nothing left to hover) and 74px/83px both
+     undershot (a strip stayed stuck visible) — so the real rendered
+     height sits somewhere between 83 and 92. 88px below narrows that
+     further; if a strip is still visible, move it up toward 92; if it
+     disappears again, move it back down toward 83. See this theme's
+     README.md for how to measure the exact rendered height directly
+     instead of bisecting by eye. */
+  --hover-titlebar-height: 88px;
 
   /* How many pixels of the toolbox stay in the document flow at the top
-     edge of the window while "hidden". This sliver is invisible to the
-     eye (it renders as the plain toolbar background) but is exactly
-     what your cursor hovers over to trigger the reveal. Keep this small
-     but non-zero — 0 would leave nothing to hover over. */
-  --hover-titlebar-trigger: 2px;
+     edge of the window while "hidden" — this sliver is what your cursor
+     hovers over to trigger the reveal, and the little arrow hint in
+     animations.css sits right below it. A couple of pixels is enough to
+     work but easy to miss; 6px gives the cursor (and the hint arrow) a
+     more forgiving, more discoverable target. Keep it non-zero — 0 would
+     leave nothing to hover over. */
+  --hover-titlebar-trigger: 6px;
 
   /* Reveal is instant on hover-in; hiding waits this long after the
      cursor leaves so the bar doesn't flicker shut while you're moving

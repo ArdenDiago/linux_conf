@@ -16,15 +16,63 @@
    ========================================================================== */
 
 #navigator-toolbox {
-  transition: margin-top var(--hover-titlebar-duration)
-    var(--hover-titlebar-easing) var(--hover-titlebar-hide-delay);
-  will-change: margin-top;
+  transition: top var(--hover-titlebar-duration) var(--hover-titlebar-easing)
+    var(--hover-titlebar-hide-delay);
+  will-change: top;
 }
 
 #navigator-toolbox:hover,
 #navigator-toolbox:focus-within,
 #navigator-toolbox:has(panel[panelopen]),
 #navigator-toolbox:has(menupopup[open]) {
-  margin-top: 0 !important;
+  top: 0 !important;
   transition-delay: 0s;
+}
+
+/* ---- Discoverability hint: a small arrow parked at the top edge ----
+   The collapsed toolbox is just a few pixels of plain background — with
+   nothing else on screen there's no visual cue that hovering there does
+   anything. This chevron sits just below that sliver as a "there's
+   something here" affordance, and fades out once the bar is actually
+   revealed so it doesn't clutter the real UI.
+
+   It's `::after` on #navigator-toolbox but positioned `fixed`, not
+   `absolute`: #navigator-toolbox is animated via `top` rather than
+   `transform` (see layout.css) specifically so it never establishes a
+   containing block for fixed-position descendants, so this escapes the
+   toolbox's own `overflow: hidden` and positions against the window
+   instead of getting clipped/dragged along with it. */
+#navigator-toolbox::after {
+  content: "";
+  position: fixed;
+  top: calc(var(--hover-titlebar-trigger) + 4px);
+  left: 50%;
+  width: 22px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.55);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  transform: translateX(-50%);
+  transform-origin: center top;
+  pointer-events: none;
+  z-index: 10;
+  animation: hover-titlebar-hint-bob 1.8s ease-in-out infinite;
+  transition: opacity 0.2s ease;
+}
+
+#navigator-toolbox:hover::after,
+#navigator-toolbox:focus-within::after,
+#navigator-toolbox:has(panel[panelopen])::after,
+#navigator-toolbox:has(menupopup[open])::after {
+  opacity: 0;
+}
+
+@keyframes hover-titlebar-hint-bob {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%      { transform: translateX(-50%) translateY(3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #navigator-toolbox::after {
+    animation: none;
+  }
 }
