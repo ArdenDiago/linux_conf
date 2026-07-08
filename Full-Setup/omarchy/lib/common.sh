@@ -133,10 +133,14 @@ ensure_on_path() {
   for pattern in "$@"; do
     for f in $pattern; do
       if [ -f "$f" ] && [ -x "$f" ]; then
-        ln -sf "$f" "$link"
+        if [ "$f" -ef "$link" ]; then
+          log "'$name' is already at $f — adding ~/.local/bin to PATH is enough."
+        else
+          ln -sf "$f" "$link"
+          log "Linked '$name' -> $f — it now runs from anywhere, no path needed."
+        fi
         export PATH="$HOME/.local/bin:$PATH"
         hash -r
-        log "Linked '$name' -> $f — it now runs from anywhere, no path needed."
         return 0
       fi
     done
