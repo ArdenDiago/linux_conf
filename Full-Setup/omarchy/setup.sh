@@ -30,7 +30,22 @@ fi
 
 TMPDIR="$(mktemp -d)"
 export TMPDIR
-trap 'rm -rf "$TMPDIR"' EXIT
+
+# Every failed step's captured output lands here, in one place, so you can
+# fix things up after an unattended run without having to scroll back
+# through terminal history. Starts empty each run; removed at the end if
+# nothing failed.
+ERROR_LOG="$SCRIPT_DIR/errors.log"
+: > "$ERROR_LOG"
+
+# Ask for the sudo password once up front, then keep the credential alive
+# in the background for the whole run so a long unattended install (AUR
+# builds especially) doesn't stall on a re-prompt with no one watching.
+sudo -v
+( while true; do sudo -n true; sleep 60; kill -0 "$$" &>/dev/null || exit; done ) &
+SUDO_KEEPALIVE_PID=$!
+
+trap 'kill "$SUDO_KEEPALIVE_PID" &>/dev/null || true; rm -rf "$TMPDIR"' EXIT
 
 banner
 
@@ -81,6 +96,7 @@ succeeded=$(( total_modules - ${#FAILED_STEPS[@]} ))
 
 echo
 if [ "${#FAILED_STEPS[@]}" -eq 0 ]; then
+  rm -f "$ERROR_LOG"
   summary_box "${C_BOLD}${C_GREEN}" \
     "✓ All $total_modules/$total_modules steps completed" \
     "Total time: $(format_duration "$total_elapsed")"
@@ -90,5 +106,7 @@ else
     summary_lines+=("  ✖ $s")
   done
   summary_box "${C_BOLD}${C_YELLOW}" "${summary_lines[@]}"
+  echo -e "${C_DIM}Failed steps were rolled back — nothing was left half-installed.${C_RESET}"
+  echo -e "${C_DIM}Full error details: ${C_RESET}${C_BOLD}$ERROR_LOG${C_RESET}"
   echo -e "${C_DIM}Re-run this script any time — it's safe and will skip what's already done.${C_RESET}"
 fi

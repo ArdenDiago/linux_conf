@@ -13,9 +13,11 @@ module_step() {
     pac_install docker docker-compose docker-buildx || return 1
   fi
 
+  track_rollback "sudo systemctl disable --now docker.service 2>/dev/null || true"
   sudo systemctl enable --now docker.service || return 1
 
   if ! groups "$USER" | grep -qw docker; then
+    track_rollback "sudo gpasswd -d '$USER' docker 2>/dev/null || true"
     sudo usermod -aG docker "$USER"
     warn "Log out/in (or run 'newgrp docker') for docker group membership to take effect."
   fi

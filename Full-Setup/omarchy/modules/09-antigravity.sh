@@ -15,9 +15,8 @@ module_step() {
   local tarball="$TMPDIR/antigravity.tar.gz"
   curl --retry 5 --retry-delay 3 --retry-all-errors -C - -fSL "$url" -o "$tarball" || return 1
   mkdir -p "$HOME/.local/antigravity"
+  track_rollback "rm -rf '$HOME/.local/antigravity' '$HOME/.local/bin/antigravity'"
   tar -xzf "$tarball" -C "$HOME/.local/antigravity" --strip-components=1 || return 1
-  mkdir -p "$HOME/.local/bin"
-  ln -sf "$HOME/.local/antigravity/antigravity" "$HOME/.local/bin/antigravity"
-  log "antigravity linked into ~/.local/bin."
+  ensure_on_path antigravity "$HOME/.local/antigravity/antigravity"
   return 0
 }

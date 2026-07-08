@@ -28,6 +28,7 @@ module_step() {
   local build_dir="$TMPDIR/yay"
   git clone --depth 1 https://aur.archlinux.org/yay.git "$build_dir" || return 1
   # makepkg refuses to run as root, and must not be invoked with sudo.
+  track_rollback "sudo pacman -Rns --noconfirm yay 2>/dev/null || true"
   (cd "$build_dir" && makepkg -si --noconfirm) || return 1
   return 0
 }

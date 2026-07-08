@@ -2,7 +2,9 @@
 #
 # Several later modules (Claude Code, Antigravity) install into
 # ~/.local/bin. Add it to PATH in whichever shell rc files exist, since
-# Arch/Omarchy users commonly run bash, zsh, or both.
+# Arch/Omarchy users commonly run bash, zsh, or both. Also exports it into
+# *this* running script's PATH immediately, so commands installed later in
+# this same run (claude, antigravity) resolve without opening a new shell.
 #
 MODULE_DESC="PATH setup"
 
@@ -30,8 +32,13 @@ module_step() {
     updated=1
   fi
 
+  case ":$PATH:" in
+    *":$HOME/.local/bin:"*) ;;
+    *) export PATH="$HOME/.local/bin:$PATH" ;;
+  esac
+
   if [ "$updated" -eq 1 ]; then
-    log "Open a new terminal (or source your shell rc file) for it to take effect."
+    log "Open a new terminal (or source your shell rc file) for future sessions to pick it up."
   fi
   return 0
 }

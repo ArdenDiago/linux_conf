@@ -11,6 +11,7 @@ module_step() {
     return 0
   fi
   pac_install neovim ripgrep fd || return 1
+  track_rollback "rm -rf '$HOME/.config/nvim'"
   git clone https://github.com/LazyVim/starter "$HOME/.config/nvim" || return 1
   rm -rf "$HOME/.config/nvim/.git"
   return 0

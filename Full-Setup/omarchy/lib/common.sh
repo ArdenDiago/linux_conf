@@ -36,24 +36,64 @@ ok()   { echo -e "${C_BOLD}${C_GREEN}✓${C_RESET}  ${C_GREEN}$*${C_RESET}"; }
 
 FAILED_STEPS=()
 
-# Runs a step function. If it returns non-zero, log it and move on instead
-# of aborting the whole script.
-run_step() {
-  local desc="$1"; shift
-  if "$@"; then
-    return 0
+# ---------------------------------------------------------------------------
+# Rollback tracking. Each module gets a clean slate (reset_rollback_state)
+# right before it runs. Modules register undo actions as they go via
+# track_rollback and the pac_install/aur_install wrappers below; if the
+# module's step function returns non-zero, run_step calls
+# rollback_current_step to undo everything registered so far, so a failed
+# step doesn't leave the system half-configured.
+# ---------------------------------------------------------------------------
+_ROLLBACK_ACTIONS=()
+_NEW_PACMAN_PKGS=()
+_NEW_AUR_PKGS=()
+
+reset_rollback_state() {
+  _ROLLBACK_ACTIONS=()
+  _NEW_PACMAN_PKGS=()
+  _NEW_AUR_PKGS=()
+}
+
+# track_rollback "shell command to undo something this module just did"
+# Registered actions run in reverse order (last done, first undone) if the
+# current module fails.
+track_rollback() { _ROLLBACK_ACTIONS+=("$1"); }
+
+rollback_current_step() {
+  local did_something=0 i
+
+  for (( i=${#_ROLLBACK_ACTIONS[@]}-1; i>=0; i-- )); do
+    did_something=1
+    bash -c "${_ROLLBACK_ACTIONS[$i]}" &>/dev/null || true
+  done
+
+  if [ "${#_NEW_AUR_PKGS[@]}" -gt 0 ]; then
+    did_something=1
+    sudo pacman -Rns --noconfirm "${_NEW_AUR_PKGS[@]}" &>/dev/null || true
   fi
-  err "Step failed: $desc — continuing with the rest of the script."
-  FAILED_STEPS+=("$desc")
-  return 0
+  if [ "${#_NEW_PACMAN_PKGS[@]}" -gt 0 ]; then
+    did_something=1
+    sudo pacman -Rns --noconfirm "${_NEW_PACMAN_PKGS[@]}" &>/dev/null || true
+  fi
+
+  [ "$did_something" -eq 1 ] && warn "Rolled back the partial changes from this step."
 }
 
 pac_installed() { pacman -Qi "$1" &>/dev/null; }
 
 # Installs one or more official-repo packages via pacman. --needed makes
-# this naturally idempotent: already-installed packages are skipped.
+# this naturally idempotent: already-installed packages are skipped. Only
+# packages that weren't already present get recorded for rollback, so a
+# later failure in the same module won't remove something the user already
+# had installed before this script ran.
 pac_install() {
-  sudo pacman -S --needed --noconfirm "$@"
+  local pkg newly=()
+  for pkg in "$@"; do
+    pac_installed "$pkg" || newly+=("$pkg")
+  done
+  sudo pacman -S --needed --noconfirm "$@" || return 1
+  _NEW_PACMAN_PKGS+=("${newly[@]}")
+  return 0
 }
 
 aur_installed() { pacman -Qi "$1" &>/dev/null; }
@@ -65,7 +105,86 @@ aur_install() {
     err "yay is not available — cannot install AUR package(s): $*"
     return 1
   fi
-  yay -S --needed --noconfirm "$@"
+  local pkg newly=()
+  for pkg in "$@"; do
+    aur_installed "$pkg" || newly+=("$pkg")
+  done
+  yay -S --needed --noconfirm "$@" || return 1
+  _NEW_AUR_PKGS+=("${newly[@]}")
+  return 0
+}
+
+# ensure_on_path <command-name> <candidate-path-or-glob> [more candidates...]
+# Some installers (curl-based ones especially) are supposed to drop a
+# symlink on PATH but sometimes don't (e.g. a known upstream bug in the
+# Claude Code native installer skipping the ~/.local/bin/claude symlink).
+# This checks whether <command-name> already resolves; if not, it searches
+# the candidate paths/globs for a real executable and links it into
+# ~/.local/bin so it works globally right away, in this same shell too.
+ensure_on_path() {
+  local name="$1"; shift
+  if command -v "$name" &>/dev/null; then
+    return 0
+  fi
+
+  mkdir -p "$HOME/.local/bin"
+  local link="$HOME/.local/bin/$name"
+  local pattern f
+  for pattern in "$@"; do
+    for f in $pattern; do
+      if [ -f "$f" ] && [ -x "$f" ]; then
+        ln -sf "$f" "$link"
+        export PATH="$HOME/.local/bin:$PATH"
+        hash -r
+        log "Linked '$name' -> $f — it now runs from anywhere, no path needed."
+        return 0
+      fi
+    done
+  done
+
+  warn "Could not find a '$name' binary to link into ~/.local/bin — you'll need to run it by its full path for now."
+  return 1
+}
+
+# ---------------------------------------------------------------------------
+# Step runner. Captures the step's combined output (so it can be written to
+# ERROR_LOG on failure) while still streaming it live to the terminal, runs
+# rollback on failure, and never aborts the overall script.
+# ---------------------------------------------------------------------------
+run_step() {
+  local desc="$1"; shift
+  reset_rollback_state
+
+  local capture="$TMPDIR/last-step-output.log"
+  : > "$capture"
+
+  local out_fd
+  exec {out_fd}> >(tee -a "$capture")
+  local tee_pid=$!
+
+  local status=0
+  "$@" >&"$out_fd" 2>&"$out_fd" || status=$?
+
+  exec {out_fd}>&-
+  wait "$tee_pid" 2>/dev/null || true
+
+  if [ "$status" -eq 0 ]; then
+    return 0
+  fi
+
+  err "Step failed: $desc — continuing with the rest of the script."
+  rollback_current_step
+  FAILED_STEPS+=("$desc")
+
+  if [ -n "${ERROR_LOG:-}" ]; then
+    {
+      echo "===== $(date '+%Y-%m-%d %H:%M:%S') — $desc ====="
+      cat "$capture"
+      echo
+    } >> "$ERROR_LOG"
+  fi
+
+  return 0
 }
 
 # ---------------------------------------------------------------------------
