@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 #
-# Personal Alacritty + tmux setup: custom pane-splitting keybindings sent
-# as private escape sequences from Alacritty and mapped to real tmux
-# commands, a session-limit hook (keeps only the last 10 tmux sessions), a
-# welcome banner on every new window, and a big-clock popup. Files live in
-# dotfiles/ and are copied in (not symlinked) so a later change to this
-# repo doesn't silently rewrite a file you're mid-edit on.
+# Personal Alacritty + tmux setup: custom pane-splitting/session keybindings
+# sent as private escape sequences from Alacritty and mapped to real tmux
+# commands, mouse scroll support, vi-style copy-mode wired to the system
+# clipboard via wl-copy, a session-limit hook (keeps only the last 10 tmux
+# sessions), a welcome banner on every new window, and a big-clock popup.
+# Files live in dotfiles/ and are copied in (not symlinked) so a later
+# change to this repo doesn't silently rewrite a file you're mid-edit on.
 #
 # checkupdates (pacman-contrib) and sensors (lm_sensors) back two of the
 # welcome banner's status lines — Debian's `apt list --upgradable` doesn't
@@ -17,7 +18,7 @@ MODULE_DESC="Dotfiles (Alacritty + tmux)"
 module_step() {
   local src="$SCRIPT_DIR/dotfiles"
 
-  pac_install pacman-contrib lm_sensors || return 1
+  pac_install pacman-contrib lm_sensors wl-clipboard || return 1
 
   # sensors-detect is normally interactive; --auto answers every prompt so
   # it works unattended. It writes /etc/conf.d/lm_sensors on completion,

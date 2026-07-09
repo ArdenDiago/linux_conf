@@ -56,6 +56,12 @@ key = "H"
 mods = "Control|Shift"
 chars = "\u001B[96~"
 
+# Ctrl+Shift+X -> close the current tmux session
+[[keyboard.bindings]]
+key = "X"
+mods = "Control|Shift"
+chars = "\u001B[97~"
+
 # Ctrl+Shift+M -> minimize the window (no title bar button to click since
 # decorations are disabled)
 [[keyboard.bindings]]
