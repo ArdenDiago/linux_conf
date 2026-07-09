@@ -13,6 +13,14 @@
 # (qt6-5compat). Dependency list is straight from the repo's own
 # SDDM-setup instructions: github.com/Darkkal44/qylock#sddm-setup.
 #
+# Upstream's bg.mp4 is 4K@60fps (~3.7Mbps). The SDDM greeter has no
+# hardware video decode wired up (no VA-API), so that gets software
+# decoded on every login on top of the theme's DropShadow layers and
+# rain particles — very laggy. We transcode down to 1080p30 (~650kbps)
+# after downloading; visually identical at login-screen scale but a
+# fraction of the decode cost. ffmpeg is already a dependency of module
+# 24 (lockscreen), which reuses this same video for its background.
+#
 MODULE_DESC="Login screen theme (Qylock — Pixel · Night City)"
 
 QYLOCK_THEME="pixel-night-city"
@@ -22,7 +30,7 @@ QYLOCK_CONF="/etc/sddm.conf.d/theme.conf"
 
 module_step() {
   pac_install qt6-declarative qt6-5compat qt6-svg qt6-multimedia qt6-multimedia-ffmpeg \
-    gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly || return 1
+    gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly ffmpeg || return 1
 
   if [ -f "$QYLOCK_SYSTEM_DIR/theme.conf" ] && \
      [ -f "$QYLOCK_CONF" ] && grep -q "^Current=$QYLOCK_THEME$" "$QYLOCK_CONF"; then
@@ -38,9 +46,15 @@ module_step() {
   for f in Main.qml BackgroundVideo.qml theme.conf metadata.desktop; do
     curl --retry 5 --retry-delay 3 --retry-all-errors -fsSL "$QYLOCK_RAW/$f" -o "$stage/$f" || return 1
   done
-  curl --retry 5 --retry-delay 3 --retry-all-errors -fsSL "$QYLOCK_RAW/bg.mp4" -o "$stage/bg.mp4" || return 1
+  local raw_video="$TMPDIR/bg-raw.mp4"
+  curl --retry 5 --retry-delay 3 --retry-all-errors -fsSL "$QYLOCK_RAW/bg.mp4" -o "$raw_video" || return 1
   curl --retry 5 --retry-delay 3 --retry-all-errors -fsSL \
     "$QYLOCK_RAW/font/PixelifySans-Bold.ttf" -o "$stage/font/PixelifySans-Bold.ttf" || return 1
+
+  log "Transcoding background video to 1080p30 (upstream ships 4K60, too heavy to decode on the greeter)"
+  ffmpeg -y -i "$raw_video" -vf "scale=1920:1080:flags=lanczos,fps=30" \
+    -c:v libx264 -preset medium -crf 23 -an "$stage/bg.mp4" &>/dev/null \
+    || { warn "Video transcode failed, falling back to the original 4K60 file."; cp "$raw_video" "$stage/bg.mp4"; }
 
   track_rollback "sudo rm -rf '$QYLOCK_SYSTEM_DIR'"
   sudo mkdir -p "$(dirname "$QYLOCK_SYSTEM_DIR")" || return 1
