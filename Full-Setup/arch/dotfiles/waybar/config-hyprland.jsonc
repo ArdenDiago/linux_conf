@@ -35,7 +35,10 @@
       "custom/update",
       "custom/separator#dot",
       "custom/separator#blank",
-      "custom/media"
+      "custom/media-prev",
+      "custom/media-playpause",
+      "custom/media-next",
+      "custom/media-spectrum"
     ]
   },
 
@@ -123,7 +126,8 @@
     "tooltip-format-ethernet": "⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
     "tooltip-format-disconnected": "Disconnected",
     "interval": 3,
-    "spacing": 1
+    "spacing": 1,
+    "on-click": "~/.config/waybar/network-menu.sh"
   },
 
   "battery": {
@@ -150,7 +154,8 @@
     "format-disabled": "<span size='11500'>󰂲</span>",
     "format-connected": "<span size='11500'></span>",
     "format-no-controller": "",
-    "tooltip-format": "Devices connected: {num_connections}"
+    "tooltip-format": "Devices connected: {num_connections}",
+    "on-click": "~/.config/waybar/bluetooth-menu.sh"
   },
 
   "pulseaudio": {
@@ -169,10 +174,31 @@
     "spacing": 8
   },
 
-  "custom/media": {
-    "exec": "title=$(playerctl metadata title 2>/dev/null); if [ -n \"$title\" ]; then echo \"  ${title:0:25} \"; else echo \"         No media           \"; fi",
-    "interval": 2,
-    "on-click": "playerctl play-pause"
+  "custom/media-prev": {
+    "exec": "~/.config/waybar/media-button.sh prev",
+    "on-click": "playerctl previous",
+    "return-type": "json",
+    "interval": 1
+  },
+
+  "custom/media-playpause": {
+    "exec": "~/.config/waybar/media-button.sh playpause",
+    "on-click": "playerctl play-pause",
+    "return-type": "json",
+    "interval": 1
+  },
+
+  "custom/media-next": {
+    "exec": "~/.config/waybar/media-button.sh next",
+    "on-click": "playerctl next",
+    "return-type": "json",
+    "interval": 1
+  },
+
+  "custom/media-spectrum": {
+    "exec": "~/.config/waybar/media-spectrum.py",
+    "return-type": "json",
+    "on-click": "~/.config/waybar/media-boost-toggle.sh"
   },
 
   "custom/separator#blank": {

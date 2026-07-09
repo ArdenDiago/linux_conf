@@ -142,8 +142,36 @@ tooltip label {
 
 #cpu, #memory {
     margin-left: 0px;
-    font-size: 18px;
+    font-size: 14px;
     padding: 3px 0px;
+}
+
+#custom-media-prev,
+#custom-media-playpause,
+#custom-media-next {
+    font-size: 12px;
+    color: @foreground;
+    padding: 0 2px;
+}
+
+#custom-media-spectrum {
+    font-size: 12px;
+    color: @foreground;
+    padding: 0 4px;
+    letter-spacing: -1px;
+}
+
+#custom-media-spectrum.boosted {
+    color: #f38ba8;
+}
+
+#custom-media-prev.hidden,
+#custom-media-playpause.hidden,
+#custom-media-next.hidden,
+#custom-media-spectrum.idle {
+    padding: 0;
+    margin: 0;
+    min-width: 0;
 }
 
 #group-center4,

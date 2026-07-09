@@ -64,6 +64,7 @@ _setup_profile() {
   _ensure_user_pref "$profile_dir/user.js" "browser.newtabpage.activity-stream.showWeather" "false"
   _ensure_user_pref "$profile_dir/user.js" "browser.newtabpage.activity-stream.system.showWeather" "false"
   _ensure_user_pref "$profile_dir/user.js" "xpinstall.signatures.required" "false"
+  _ensure_user_pref "$profile_dir/user.js" "layout.css.devPixelsPerPx" "1"
 }
 
 module_step() {
