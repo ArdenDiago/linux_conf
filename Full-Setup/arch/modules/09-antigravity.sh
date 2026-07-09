@@ -18,7 +18,7 @@ module_step() {
   local ide_dir="$HOME/.config/antigravity/ide"
   local cli_dir="$HOME/.config/antigravity/cli"
 
-  if [ -x "$ide_dir/antigravity" ]; then
+  if [ -x "$ide_dir/antigravity-ide" ]; then
     log "Antigravity IDE already installed, skipping."
   else
     log "Installing Antigravity IDE"
@@ -28,7 +28,7 @@ module_step() {
       mkdir -p "$ide_dir"
       track_rollback "rm -rf '$ide_dir' '$HOME/.local/bin/antigravity'"
       if tar -xzf "$tarball" -C "$ide_dir" --strip-components=1; then
-        ensure_on_path antigravity "$ide_dir/antigravity"
+        ensure_on_path antigravity "$ide_dir/antigravity-ide"
       else
         warn "Antigravity IDE archive extraction failed."
         failed=1
