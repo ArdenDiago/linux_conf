@@ -40,7 +40,7 @@ spawn-sh-at-startup "~/.config/wallpaper/restore.sh"
 binds {
     Mod+Return hotkey-overlay-title="Open a Terminal: alacritty" { spawn "alacritty"; }
     Mod+D hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
-    Mod+L hotkey-overlay-title="Lock the Screen: swaylock" { spawn "swaylock"; }
+    Mod+L hotkey-overlay-title="Lock the Screen: hyprlock" { spawn "hyprlock"; }
     Mod+W hotkey-overlay-title="Pick a Wallpaper" { spawn-sh "~/.config/wallpaper/select.sh"; }
 
     Mod+Q repeat=false { close-window; }

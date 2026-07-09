@@ -11,7 +11,7 @@ MODULE_DESC="Hyprland"
 
 module_step() {
   pac_install hyprland xdg-desktop-portal-hyprland xorg-xwayland \
-    fuzzel mako swaybg swaylock waybar polkit-gnome || return 1
+    fuzzel mako swaybg waybar polkit-gnome || return 1
 
   mkdir -p "$HOME/.config/hypr"
   install_dotfile "$SCRIPT_DIR/dotfiles/hypr/hyprland.conf" "$HOME/.config/hypr/hyprland.conf"
