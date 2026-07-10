@@ -33,11 +33,25 @@
 # exist yet when this script runs from a TTY before any session has
 # logged in; it starts on its own at the next graphical login.
 #
+# dms.service.override.conf works around a real conflict: the unit is
+# Type=dbus, BusName=org.freedesktop.Notifications, but mako (started by
+# modules/15-hyprland.sh / modules/16-niri.sh's exec-once/spawn-at-startup)
+# already owns that name — so the moment systemd actually starts dms.service
+# itself (rather than something else launching the process directly, which
+# is how it happened to be running before this override existed), the
+# BusName wait times out and it crash-loops forever. Type=simple drops that
+# wait; see the override file itself for the full story.
+#
 MODULE_DESC="DankMaterialShell (Quickshell desktop shell)"
 
 module_step() {
   pac_install dms-shell dms-shell-hyprland dms-shell-niri \
     matugen power-profiles-daemon qt6-multimedia || return 1
+
+  mkdir -p "$HOME/.config/systemd/user/dms.service.d"
+  install_dotfile "$SCRIPT_DIR/dotfiles/dankmaterialshell/dms.service.override.conf" \
+    "$HOME/.config/systemd/user/dms.service.d/override.conf"
+  systemctl --user daemon-reload
 
   track_rollback "systemctl --user disable dms.service 2>/dev/null || true"
   systemctl --user enable dms.service || return 1
