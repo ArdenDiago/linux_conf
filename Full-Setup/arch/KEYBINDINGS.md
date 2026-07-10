@@ -113,7 +113,8 @@ most terminals can't tell `Ctrl+Shift+<key>` apart from plain `Ctrl+<key>`).
 | `Ctrl+Alt+D` | Split tmux pane vertically (left/right) |
 | `Ctrl+Alt+Left/Right/Up/Down` | Move focus between tmux panes |
 | `Ctrl+Shift+H` | Pick one of the last 10 tmux sessions to switch to |
-| `Ctrl+Shift+X` | Kill the current tmux session (and the terminal window with it) |
+| `Ctrl+Shift+X` | Close only the current tmux pane (rest of the session, and the terminal window, keep running) |
+| `Ctrl+Alt+X` | Kill the whole tmux session — closes the terminal window too, since Alacritty's shell *is* that session |
 | `Ctrl+Shift+M` | Minimize the Alacritty window (no title bar, since decorations are off) |
 | `Ctrl+N` | Open a new Alacritty window (starts a fresh tmux session) |
 
@@ -129,7 +130,8 @@ above) via `user-keys`, not typed directly into tmux.
 | `Ctrl+Alt+D` *(via Alacritty)* | Split pane vertically |
 | `Ctrl+Alt+Left/Right/Up/Down` *(via Alacritty)* | Move focus between panes |
 | `Ctrl+Shift+H` *(via Alacritty)* | Choose a session to switch to (`choose-tree -Zs`) |
-| `Ctrl+Shift+X` *(via Alacritty)* | Kill the current session |
+| `Ctrl+Shift+X` *(via Alacritty)* | Close only the current pane |
+| `Ctrl+Alt+X` *(via Alacritty)* | Kill the whole session (and the terminal window with it) |
 | Mouse scroll (in a pane) | Enter copy-mode and scroll back through history |
 | Mouse click/drag | Select a pane / resize a pane border |
 | `Space` *(in copy-mode)* | Begin selection (vi-style copy-mode default) |
