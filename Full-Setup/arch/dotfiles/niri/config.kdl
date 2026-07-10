@@ -118,9 +118,22 @@ binds {
     Mod+Ctrl+8 { move-column-to-workspace 8; }
     Mod+Ctrl+9 { move-column-to-workspace 9; }
 
+    // Workspace up/down, keeping the U/I-flank-the-home-row convention:
+    // Mod+U/I focuses, Mod+Ctrl+U/I moves the column — same Ctrl-means-move
+    // pattern as the Left/Right workspace and monitor binds above.
+    Mod+I { focus-workspace-up; }
+    Mod+U { focus-workspace-down; }
+    Mod+Ctrl+I { move-column-to-workspace-up; }
+    Mod+Ctrl+U { move-column-to-workspace-down; }
+
     Mod+F { maximize-column; }
     Mod+Shift+F { fullscreen-window; }
     Mod+V { toggle-window-floating; }
+    // Switches keyboard focus between the floating and tiling stacks,
+    // distinct from Mod+V above (which toggles one window's floating state).
+    Mod+Grave { switch-focus-between-floating-and-tiling; }
+    Mod+BracketLeft  { consume-or-expel-window-left; }
+    Mod+BracketRight { consume-or-expel-window-right; }
 
     // Resize the focused column/window, vim-style — same h/j/k/l-for-resize
     // convention as the tmux pane bindings. niri sizes by percentage of the
@@ -131,6 +144,9 @@ binds {
     Mod+Shift+L { set-column-width "+10%"; }
     Mod+Shift+J { set-window-height "-10%"; }
     Mod+Shift+K { set-window-height "+10%"; }
+    // Cycles the focused column through niri's preset widths (1/3, 1/2, 2/3
+    // of the output by default) instead of the ∓10% nudging above.
+    Mod+R { switch-preset-column-width; }
 
     // Screenshots: plain = interactive area select, Ctrl = full monitor,
     // Alt = focused window only. Saved to screenshot-path (niri default) /
