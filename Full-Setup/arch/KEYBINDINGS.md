@@ -8,6 +8,7 @@ a readable index on top of them, not a replacement:
 - Hyprland: [`dotfiles/hypr/hyprland.conf`](dotfiles/hypr/hyprland.conf)
 - Alacritty: [`dotfiles/alacritty/alacritty.toml`](dotfiles/alacritty/alacritty.toml)
 - tmux: [`dotfiles/tmux/tmux.conf`](dotfiles/tmux/tmux.conf)
+- ble.sh: [`dotfiles/blesh/blerc`](dotfiles/blesh/blerc)
 - Waybar (mouse clicks, not keybinds): [`dotfiles/waybar/config-niri.jsonc`](dotfiles/waybar/config-niri.jsonc), [`dotfiles/waybar/config-hyprland.jsonc`](dotfiles/waybar/config-hyprland.jsonc)
 
 `Mod` is the Super/Windows key in both compositors. Only one of Niri or
@@ -130,6 +131,24 @@ above) via `user-keys`, not typed directly into tmux.
 | `Enter` *(in copy-mode)* | Copy selection to the system clipboard (`wl-copy`) and exit copy-mode |
 | `prefix + t` | Big popup clock (12h, AM/PM, day + date) — overrides tmux's stock clock-mode |
 | `prefix + Left/Right/Up/Down` or `prefix + h/j/k/l` (repeatable) | Resize the active pane by 5 cells in that direction — first tap needs the prefix, further taps/holds within 700ms don't |
+
+## ble.sh (bash line editor)
+
+`modules/25-ble-sh.sh` installs [ble.sh](https://github.com/akinomyoga/ble.sh) for
+fish/zsh-style ghost-text autosuggestions (grey text predicted from history) and
+syntax highlighting in bash. `blerc` only touches the autosuggestion color and one
+keybinding — everything else is ble.sh's stock behavior.
+
+| Keybind | Action |
+|---|---|
+| `Tab` / `End` / `C-f` / `Right` / `C-e` | Accept the grey autosuggestion — only while one is showing and the cursor is at end-of-line; otherwise `Tab` falls back to normal completion |
+| `Shift+Enter` | Accept the autosuggestion regardless of cursor position |
+| `Ctrl+G` | Dismiss the current autosuggestion |
+
+`Tab` accepting suggestions isn't a ble.sh default — `blerc` adds it
+(`ble-bind -m auto_complete -f TAB auto_complete/insert-on-end`) alongside the
+built-in End/C-f/Right/C-e/Shift+Enter bindings, since expecting Tab to behave
+like fish/zsh's autosuggestion-accept key is the more familiar mental model.
 
 ## Neovim / LazyVim
 
