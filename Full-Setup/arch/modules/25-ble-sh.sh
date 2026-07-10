@@ -15,6 +15,8 @@ module_step() {
     aur_install blesh || return 1
   fi
 
+  install_dotfile "$SCRIPT_DIR/dotfiles/blesh/blerc" "$HOME/.blerc"
+
   # ble.sh must be sourced as the very last line of .bashrc — it hooks the
   # line editor after everything else (prompt, aliases, other rc changes)
   # has already loaded.

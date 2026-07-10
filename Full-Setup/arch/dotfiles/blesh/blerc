@@ -1,0 +1,14 @@
+# ble.sh user config
+
+# Autosuggestion (the "ghost text" completion shown as you type).
+# Default is bg=254,fg=238 which renders as a bright light-gray block
+# with dark text. This switches it to plain dim-gray text with no
+# background highlight.
+ble-color-setface auto_complete fg=242
+
+# Accept the ghost-text suggestion with Tab too, not just ble.sh's defaults
+# (End/C-f/Right/C-e/Shift-Enter). Only takes over Tab while a suggestion
+# is actually showing (the auto_complete keymap) and only at end-of-line —
+# same condition the built-in C-f/Right/C-e bindings use — so plain Tab
+# still does normal completion the rest of the time.
+ble-bind -m auto_complete -f TAB auto_complete/insert-on-end
