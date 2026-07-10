@@ -11,7 +11,7 @@
 #
 # swaybg is already installed by modules/15-hyprland.sh and
 # modules/16-niri.sh; jq (used to ask hyprctl/niri msg which output is
-# focused) is already installed by modules/17-waybar.sh. Requires
+# focused) is already installed by modules/17-desktop-services.sh. Requires
 # Quickshell + a running DankMaterialShell session (`dms run --session`) —
 # neither is installed by this repo, since DMS itself is set up outside
 # this automation; select.sh will simply do nothing if `quickshell` isn't

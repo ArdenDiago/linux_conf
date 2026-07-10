@@ -9,7 +9,6 @@ a readable index on top of them, not a replacement:
 - Alacritty: [`dotfiles/alacritty/alacritty.toml`](dotfiles/alacritty/alacritty.toml)
 - tmux: [`dotfiles/tmux/tmux.conf`](dotfiles/tmux/tmux.conf)
 - ble.sh: [`dotfiles/blesh/blerc`](dotfiles/blesh/blerc)
-- Waybar (mouse clicks, not keybinds): [`dotfiles/waybar/config-niri.jsonc`](dotfiles/waybar/config-niri.jsonc), [`dotfiles/waybar/config-hyprland.jsonc`](dotfiles/waybar/config-hyprland.jsonc)
 
 `Mod` is the Super/Windows key in both compositors. Only one of Niri or
 Hyprland runs at a time (picked from SDDM's session dropdown at login), but
@@ -83,21 +82,6 @@ it.
 | `Super+drag` (left mouse button) | Move a floating window |
 | `Super+drag` (right mouse button) | Resize a floating window |
 | `Super+Shift+Left/Right/Up/Down` (hold, repeats) | Resize the active tiled window/split by 20px per tick |
-
-## Waybar (mouse clicks, not keyboard — listed for completeness)
-
-Same across both the niri and Hyprland waybar configs unless noted.
-
-| Module | Click | Action |
-|---|---|---|
-| Workspaces (Hyprland only) | Left click | Switch to that workspace |
-| App launcher widget | Left click | Open fuzzel |
-| CPU widget | Left click | Open `btop` in a terminal |
-| Memory widget | Left click | Open `btop` in a terminal |
-| Volume widget | Right click | Mute/unmute (`pamixer -t`) |
-| Media/player widget | Left click | Play/pause (`playerctl play-pause`) |
-| Updates widget | Left click | Open `sudo pacman -Syu` in a terminal |
-| Game-mode widget (Hyprland only) | Left click | Toggle animations/blur off for gaming |
 
 ## Alacritty (terminal emulator)
 

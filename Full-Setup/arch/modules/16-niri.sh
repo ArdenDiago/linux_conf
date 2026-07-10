@@ -17,7 +17,7 @@
 MODULE_DESC="Niri"
 
 module_step() {
-  pac_install niri fuzzel mako swaybg waybar xwayland-satellite \
+  pac_install niri fuzzel mako swaybg xwayland-satellite \
     polkit-gnome xdg-desktop-portal xdg-desktop-portal-gnome xdg-desktop-portal-gtk || return 1
 
   mkdir -p "$HOME/.config/niri" "$HOME/.config/xdg-desktop-portal"
