@@ -6,5 +6,10 @@
   "permissions": ["search", "notifications"],
   "chrome_url_overrides": {
     "newtab": "newtab.html"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "newtab-pomodoro@linux-conf.local"
+    }
   }
 }
