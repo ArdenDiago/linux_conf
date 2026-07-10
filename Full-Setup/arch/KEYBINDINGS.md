@@ -30,11 +30,16 @@ both configs are installed side by side and kept in sync where possible.
 | `Mod+Ctrl+Up` / `Mod+Ctrl+Down` | Move window up / down |
 | `Mod+1` … `Mod+9` | Focus workspace 1–9 |
 | `Mod+Ctrl+1` … `Mod+Ctrl+9` | Move focused column to workspace 1–9 |
+| `Mod+I` / `Mod+U` | Focus workspace up / down |
+| `Mod+Ctrl+I` / `Mod+Ctrl+U` | Move focused column to workspace up / down |
 | `Mod+F` | Maximize the focused column |
 | `Mod+Shift+F` | Fullscreen the focused window |
 | `Mod+V` | Toggle floating for the focused window |
+| `Mod+Grave` | Switch keyboard focus between the floating and tiling stacks (distinct from `Mod+V`, which toggles one window's floating state) |
+| `Mod+BracketLeft` / `Mod+BracketRight` | Consume a window into the focused column from the left/right, or expel it back out |
 | `Mod+Shift+H` / `Mod+Shift+L` | Resize focused column narrower / wider (∓10%) |
 | `Mod+Shift+J` / `Mod+Shift+K` | Resize focused window shorter / taller (∓10%) |
+| `Mod+R` | Cycle the focused column through niri's preset widths (1/3, 1/2, 2/3 of the output by default) |
 | `Mod+Ctrl+H` / `Mod+Ctrl+L` | Focus the monitor to the left / right (HDMI-A-1 ↔ eDP-1) |
 | `Mod+Ctrl+Shift+H` / `Mod+Ctrl+Shift+L` | Move focused column to the monitor left / right |
 | `Print` / `Ctrl+Print` / `Alt+Print` | Screenshot: interactive area / full monitor / focused window |
