@@ -64,6 +64,19 @@ binds {
     Mod+L hotkey-overlay-title="Lock the Screen: hyprlock" { spawn "hyprlock"; }
     Mod+W hotkey-overlay-title="Pick a Wallpaper" { spawn-sh "~/.config/wallpaper/select.sh"; }
 
+    // DMS shell features, via its IPC (dms run --session is already live).
+    Mod+Space hotkey-overlay-title="Spotlight Launcher" { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
+    Mod+X hotkey-overlay-title="Power Menu" { spawn "dms" "ipc" "call" "powermenu" "toggle"; }
+    Mod+N hotkey-overlay-title="Notification Center" { spawn "dms" "ipc" "call" "notifications" "toggle"; }
+    // Mod+V is already toggle-window-floating below, so clipboard gets
+    // Mod+Shift+V instead of the Mod+V DMS itself suggests.
+    Mod+Shift+V hotkey-overlay-title="Clipboard Manager" { spawn "dms" "ipc" "call" "clipboard" "toggle"; }
+    Mod+M hotkey-overlay-title="Task Manager" { spawn "dms" "ipc" "call" "processlist" "focusOrToggle"; }
+    Mod+Shift+N hotkey-overlay-title="Notepad" { spawn "dms" "ipc" "call" "notepad" "toggle"; }
+    Mod+Comma hotkey-overlay-title="Settings" { spawn "dms" "ipc" "call" "settings" "focusOrToggle"; }
+    // DMS's own wallpaper browser — distinct from Mod+W's custom carousel above.
+    Mod+Y hotkey-overlay-title="Browse Wallpapers (DMS)" { spawn "dms" "ipc" "call" "dankdash" "wallpaper"; }
+
     Mod+Q repeat=false { close-window; }
 
     Mod+Left  { focus-column-left; }
@@ -75,6 +88,15 @@ binds {
     Mod+Ctrl+Right { move-column-right; }
     Mod+Ctrl+Up    { move-window-up; }
     Mod+Ctrl+Down  { move-window-down; }
+
+    // Monitor-to-monitor (you run HDMI-A-1 + eDP-1 side by side). DMS
+    // suggests Mod+Ctrl+Left/Right for this, but that's already move-column
+    // above, so this uses vim h/l instead — only left/right since the two
+    // outputs are side by side, no up/down monitor to focus-monitor-up/down.
+    Mod+Ctrl+H { focus-monitor-left; }
+    Mod+Ctrl+L { focus-monitor-right; }
+    Mod+Ctrl+Shift+H { move-column-to-monitor-left; }
+    Mod+Ctrl+Shift+L { move-column-to-monitor-right; }
 
     Mod+1 { focus-workspace 1; }
     Mod+2 { focus-workspace 2; }
@@ -99,6 +121,44 @@ binds {
     Mod+F { maximize-column; }
     Mod+Shift+F { fullscreen-window; }
     Mod+V { toggle-window-floating; }
+
+    // Resize the focused column/window, vim-style — same h/j/k/l-for-resize
+    // convention as the tmux pane bindings. niri sizes by percentage of the
+    // output rather than a fixed pixel step. No literal "direction" concept
+    // here (unlike tmux panes), so h/l = width narrower/wider, j/k = height
+    // shorter/taller.
+    Mod+Shift+H { set-column-width "-10%"; }
+    Mod+Shift+L { set-column-width "+10%"; }
+    Mod+Shift+J { set-window-height "-10%"; }
+    Mod+Shift+K { set-window-height "+10%"; }
+
+    // Screenshots: plain = interactive area select, Ctrl = full monitor,
+    // Alt = focused window only. Saved to screenshot-path (niri default) /
+    // copied to clipboard depending on niri's screenshot UI.
+    Print      { screenshot; }
+    Ctrl+Print { screenshot-screen; }
+    Alt+Print  { screenshot-window; }
+
+    // Media keys — routed through the DMS backend (dms run --session is
+    // already running persistently, so these IPC calls have something to
+    // reach) rather than wpctl/brightnessctl directly, so volume/brightness
+    // stay in sync with whatever DMS's own UI shows.
+    XF86AudioRaiseVolume allow-when-locked=true { spawn "dms" "ipc" "call" "audio" "increment" "3"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn "dms" "ipc" "call" "audio" "decrement" "3"; }
+    XF86AudioMute        allow-when-locked=true { spawn "dms" "ipc" "call" "audio" "mute"; }
+    XF86AudioMicMute     allow-when-locked=true { spawn "dms" "ipc" "call" "audio" "micmute"; }
+
+    XF86AudioPlay  allow-when-locked=true { spawn "dms" "ipc" "call" "mpris" "playPause"; }
+    XF86AudioPause allow-when-locked=true { spawn "dms" "ipc" "call" "mpris" "playPause"; }
+    XF86AudioPrev  allow-when-locked=true { spawn "dms" "ipc" "call" "mpris" "previous"; }
+    XF86AudioNext  allow-when-locked=true { spawn "dms" "ipc" "call" "mpris" "next"; }
+
+    XF86MonBrightnessUp   allow-when-locked=true { spawn "dms" "ipc" "call" "brightness" "increment" "5" ""; }
+    XF86MonBrightnessDown allow-when-locked=true { spawn "dms" "ipc" "call" "brightness" "decrement" "5" ""; }
+
+    // Overview of every window/workspace on the current monitor — the same
+    // thing the top-left hot corner already triggers, just on a key too.
+    Mod+Tab repeat=false hotkey-overlay-title="Overview" { toggle-overview; }
 
     Mod+Shift+E { quit; }
     Mod+Shift+Slash { show-hotkey-overlay; }

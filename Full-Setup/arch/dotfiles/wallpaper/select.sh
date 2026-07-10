@@ -1,49 +1,42 @@
 #!/usr/bin/env bash
-# Wallpaper picker — bound to Super+W (Hyprland) / Mod+W (niri). Shows
-# actual image previews (no filenames) for everything in
-# ~/Pictures/Wallpapers via fuzzel's icon protocol, and applies whatever
-# gets picked immediately through swaybg, remembering it in
-# ~/.config/wallpaper/current so restore.sh brings it back on next login.
-#
-# fuzzel's icon loader only supports PNG/SVG, not JPEG (confirmed against
-# `fuzzel --version`, which reports "+png +svg", no "+jpeg") — so each
-# wallpaper gets a small PNG thumbnail cached under ~/.cache/wallpaper-
-# thumbs/, regenerated only when missing or older than the source image.
-# Selection is tracked with fuzzel's --index (0-based) rather than by
-# text, since every entry's label is intentionally just a blank space —
-# text-matching identical blank labels back to a specific file wouldn't
-# work.
+# Wallpaper picker — bound to Super+W (Hyprland) / Mod+W (niri). Opens a
+# centered carousel (carousel.qml, run via Quickshell) over everything in
+# ~/Pictures/Wallpapers — h/j/k/l or arrow keys to browse, Enter to pick,
+# Esc to cancel — and applies whatever gets picked immediately through
+# swaybg, remembering it in ~/.config/wallpaper/current so restore.sh
+# brings it back on next login.
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WALLPAPER_DIR="$HOME/Pictures/Wallpapers"
-THUMB_DIR="$HOME/.cache/wallpaper-thumbs"
 STATE_DIR="$HOME/.config/wallpaper"
 STATE_FILE="$STATE_DIR/current"
+RESULT_FILE="$STATE_DIR/.picker-result"
 
-mkdir -p "$WALLPAPER_DIR" "$THUMB_DIR" "$STATE_DIR"
+mkdir -p "$WALLPAPER_DIR" "$STATE_DIR"
 
-mapfile -t files < <(find "$WALLPAPER_DIR" -maxdepth 1 -type f \
-    \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" -o -iname "*.bmp" \) \
-    | sort)
+# Cleared up front so a cancelled run (carousel.qml only writes this file on
+# Enter) can never be mistaken for a stale pick left over from a previous
+# invocation.
+rm -f "$RESULT_FILE"
 
-if [ "${#files[@]}" -eq 0 ]; then
-    fuzzel --dmenu --prompt-only "No wallpapers in $WALLPAPER_DIR — add some and try again" >/dev/null
-    exit 0
+# Resolve the currently focused output ourselves and hand it to carousel.qml
+# via env var. Each Super+W press starts a brand new quickshell process, so
+# its Hyprland IPC connection is cold — asking *it* for the focused monitor
+# races the connection setup and was silently losing every time, always
+# falling back to whatever Quickshell.screens[0] happens to be (the laptop
+# panel), even when focus was on the HDMI output. hyprctl/niri msg here run
+# in the already-live compositor connection, so there's no race.
+MONITOR_NAME=""
+if [ -n "$HYPRLAND_INSTANCE_SIGNATURE" ] && command -v hyprctl >/dev/null 2>&1; then
+    MONITOR_NAME="$(hyprctl monitors -j | jq -r '.[] | select(.focused==true) | .name' 2>/dev/null)"
+elif [ -n "$NIRI_SOCKET" ] && command -v niri >/dev/null 2>&1; then
+    MONITOR_NAME="$(niri msg -j focused-output | jq -r '.name' 2>/dev/null)"
 fi
 
-menu=""
-for f in "${files[@]}"; do
-    thumb="$THUMB_DIR/$(basename "$f").png"
-    if [ ! -f "$thumb" ] || [ "$f" -nt "$thumb" ]; then
-        magick "$f" -resize 320x180^ -gravity center -extent 320x180 "$thumb" 2>/dev/null
-    fi
-    [ -f "$thumb" ] || thumb="$f"
-    menu+=" \0icon\x1f${thumb}\n"
-done
+WALLPAPER_CAROUSEL_MONITOR="$MONITOR_NAME" quickshell -p "$SCRIPT_DIR/carousel.qml"
 
-index="$(printf '%b' "$menu" | fuzzel --dmenu --index --prompt " " --line-height=120 --lines=6)"
-[ -z "$index" ] && exit 0
-
-full_path="${files[$index]}"
+[ -s "$RESULT_FILE" ] || exit 0
+full_path="$(cat "$RESULT_FILE")"
 [ -f "$full_path" ] || exit 0
 
 pkill -x swaybg 2>/dev/null

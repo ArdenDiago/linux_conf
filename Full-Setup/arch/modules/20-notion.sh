@@ -11,4 +11,6 @@ module_step() {
     return 0
   fi
   aur_install notion-app
+  aur_install notion-app-electron
+
 }

@@ -21,7 +21,7 @@ both configs are installed side by side and kept in sync where possible.
 | `Mod+Return` | Open a terminal (Alacritty) |
 | `Mod+D` | App launcher (fuzzel) |
 | `Mod+L` | Lock the screen (swaylock) |
-| `Mod+W` | Pick a wallpaper (fuzzel picker with thumbnails) |
+| `Mod+W` | Pick a wallpaper — centered carousel (`carousel.qml`, via Quickshell): h/j/k/l or arrows to browse, Enter to apply, Esc to cancel |
 | `Mod+Q` | Close the focused window |
 | `Mod+Left` / `Mod+Right` | Focus column left / right |
 | `Mod+Up` / `Mod+Down` | Focus window up / down |
@@ -32,8 +32,32 @@ both configs are installed side by side and kept in sync where possible.
 | `Mod+F` | Maximize the focused column |
 | `Mod+Shift+F` | Fullscreen the focused window |
 | `Mod+V` | Toggle floating for the focused window |
+| `Mod+Shift+H` / `Mod+Shift+L` | Resize focused column narrower / wider (∓10%) |
+| `Mod+Shift+J` / `Mod+Shift+K` | Resize focused window shorter / taller (∓10%) |
+| `Mod+Ctrl+H` / `Mod+Ctrl+L` | Focus the monitor to the left / right (HDMI-A-1 ↔ eDP-1) |
+| `Mod+Ctrl+Shift+H` / `Mod+Ctrl+Shift+L` | Move focused column to the monitor left / right |
+| `Print` / `Ctrl+Print` / `Alt+Print` | Screenshot: interactive area / full monitor / focused window |
+| `XF86AudioRaiseVolume` / `XF86AudioLowerVolume` | Volume up / down (via `dms ipc call audio`) |
+| `XF86AudioMute` / `XF86AudioMicMute` | Mute speaker / microphone |
+| `XF86AudioPlay` / `XF86AudioPause` / `XF86AudioPrev` / `XF86AudioNext` | Media playback controls (via `dms ipc call mpris`) |
+| `XF86MonBrightnessUp` / `XF86MonBrightnessDown` | Brightness up / down |
+| `Mod+Space` | Spotlight app launcher (DMS) |
+| `Mod+X` | Power menu (DMS) |
+| `Mod+N` | Notification center (DMS) |
+| `Mod+Shift+V` | Clipboard manager/history (DMS) — plain `Mod+V` is already floating-toggle above |
+| `Mod+M` | Task manager / process list (DMS) |
+| `Mod+Shift+N` | Notepad popup (DMS) |
+| `Mod+Comma` | Settings panel (DMS) |
+| `Mod+Y` | Browse wallpapers — DMS's own dankdash picker (separate from the `Mod+W` carousel above) |
+| `Mod+Tab` | Overview of every window/workspace on the current monitor (same as the top-left hot corner) |
 | `Mod+Shift+E` | Quit niri |
 | `Mod+Shift+/` | Show the hotkey overlay (built-in cheat sheet) |
+
+`Mod+Space`, `Mod+X`, `Mod+N`, `Mod+Shift+V`, `Mod+M`, `Mod+Shift+N`, `Mod+Comma`, `Mod+Y`, and the
+media keys all call into [DankMaterialShell](https://github.com/AvengeMedia/DankMaterialShell)'s
+IPC (`dms ipc call ...`) — they need a running `dms run --session` to do anything. DMS itself isn't
+installed by this repo (set up separately), so these binds are inert on a machine that doesn't have
+it.
 
 ## Hyprland (Wayland compositor)
 
@@ -42,7 +66,7 @@ both configs are installed side by side and kept in sync where possible.
 | `Super+Return` | Open a terminal (Alacritty) |
 | `Super+D` | App launcher (fuzzel) |
 | `Super+L` | Lock the screen (swaylock) |
-| `Super+W` | Pick a wallpaper (fuzzel picker with thumbnails) |
+| `Super+W` | Pick a wallpaper — centered carousel (`carousel.qml`, via Quickshell): h/j/k/l or arrows to browse, Enter to apply, Esc to cancel |
 | `Super+Q` | Close the active window |
 | `Super+V` | Toggle floating for the active window |
 | `Super+F` | Toggle fullscreen |
@@ -52,6 +76,7 @@ both configs are installed side by side and kept in sync where possible.
 | `Super+Shift+1` … `Super+Shift+9` | Move active window to workspace 1–9 |
 | `Super+drag` (left mouse button) | Move a floating window |
 | `Super+drag` (right mouse button) | Resize a floating window |
+| `Super+Shift+Left/Right/Up/Down` (hold, repeats) | Resize the active tiled window/split by 20px per tick |
 
 ## Waybar (mouse clicks, not keyboard — listed for completeness)
 
@@ -104,6 +129,7 @@ above) via `user-keys`, not typed directly into tmux.
 | `Space` *(in copy-mode)* | Begin selection (vi-style copy-mode default) |
 | `Enter` *(in copy-mode)* | Copy selection to the system clipboard (`wl-copy`) and exit copy-mode |
 | `prefix + t` | Big popup clock (12h, AM/PM, day + date) — overrides tmux's stock clock-mode |
+| `prefix + Left/Right/Up/Down` or `prefix + h/j/k/l` (repeatable) | Resize the active pane by 5 cells in that direction — first tap needs the prefix, further taps/holds within 700ms don't |
 
 ## Neovim / LazyVim
 
