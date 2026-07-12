@@ -50,3 +50,51 @@ function ble/widget/auto_complete/insert-path-segment {
 # missed real Tab presses that decode as 'C-i'.
 ble-bind -m auto_complete -f TAB auto_complete/insert-path-segment
 ble-bind -m auto_complete -f C-i auto_complete/insert-path-segment
+
+# Enter always executes, even on a pasted multi-line command. By default
+# RET/C-m run ble/widget/accept-single-line-or-newline, which inserts
+# another newline instead of running whenever the buffer has more than one
+# line (that's the "-- MULTILINE --" prompt after a multi-line paste) and
+# only C-j actually runs it. Rebinding RET/C-m straight to accept-line
+# (the same widget C-j already uses) removes that pause entirely: a
+# multi-line paste just sits in the buffer as-is, and Enter runs it.
+ble-bind -f RET accept-line
+ble-bind -f C-m accept-line
+
+# The "-- MULTILINE --" status line's hint text — "(RET or C-m: insert a
+# newline, C-j: run)" — describes the stock behavior we just rebound above,
+# so it's now just wrong: RET runs the command, it doesn't insert a
+# newline, and C-j isn't special anymore. Overridden here (copy of
+# keymap/emacs.sh's ble/keymap:emacs/update-mode-name with that one branch
+# removed) to drop the stale hint. The "-- MULTILINE --" tag itself is
+# still accurate (you are editing a multi-line buffer) so it stays.
+function ble/keymap:emacs/update-mode-name {
+  local opt_multiline=; [[ $_ble_edit_str == *$'\n'* ]] && opt_multiline=1
+  local mode=$opt_multiline:$_ble_edit_arg
+  [[ $mode == "$_ble_keymap_emacs_modeline" ]] && return
+  _ble_keymap_emacs_modeline=$mode
+  local name=
+  [[ $opt_multiline ]] && name=$'\e[1m-- MULTILINE --\e[m'
+  if [[ $_ble_edit_arg ]]; then
+    name="$name${name:+ }(arg: $_ble_edit_arg)"
+  fi
+  ble-edit/info/default ansi "$name"
+}
+
+# Ctrl+U clears the WHOLE buffer, not just back to the start of the current
+# line. The stock kill-backward-line only kills up to the start of the
+# current line, which on a multi-line paste leaves the earlier lines
+# behind. Adapted from ble.sh's own kill-backward-text (kills point to
+# buffer-start) but extended to also drop everything after point, so the
+# whole pasted block is gone in one press regardless of where the cursor
+# ended up in it.
+function ble/widget/kill-whole-buffer {
+  ble-edit/content/clear-arg
+  ((${#_ble_edit_str}==0)) && return
+  _ble_edit_kill_ring=$_ble_edit_str
+  _ble_edit_kill_type=
+  ble-edit/content/replace 0 "${#_ble_edit_str}" ''
+  _ble_edit_ind=0
+  _ble_edit_mark=0
+}
+ble-bind -f C-u kill-whole-buffer
