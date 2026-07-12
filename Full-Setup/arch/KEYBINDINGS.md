@@ -20,13 +20,16 @@ both configs are installed side by side and kept in sync where possible.
 |---|---|
 | `Mod+Return` | Open a terminal (Alacritty) |
 | `Mod+D` | App launcher (fuzzel) |
-| `Mod+L` | Lock the screen (swaylock) |
+| `Mod+Alt+L` | Lock the screen (hyprlock) |
 | `Mod+W` | Pick a wallpaper — centered carousel (`carousel.qml`, via Quickshell): h/j/k/l or arrows to browse, Enter to apply, Esc to cancel |
 | `Mod+Q` | Close the focused window |
 | `Mod+Left` / `Mod+Right` | Focus column left / right |
 | `Mod+Up` / `Mod+Down` | Focus window up / down |
+| `Mod+H` / `Mod+L` / `Mod+K` / `Mod+J` | vim-style equivalents of the arrow focus binds above |
 | `Mod+Ctrl+Left` / `Mod+Ctrl+Right` | Move column left / right |
 | `Mod+Ctrl+Up` / `Mod+Ctrl+Down` | Move window up / down |
+| `Mod+Ctrl+K` / `Mod+Ctrl+J` | vim-style equivalents of move window up / down |
+| `Mod+Alt+Shift+H` / `Mod+Alt+Shift+L` | vim-style equivalents of move column left / right (can't use `Mod+Ctrl+H/L` or `Mod+Alt+H/L` — already taken by focus-monitor and lock-screen) |
 | `Mod+1` … `Mod+9` | Focus workspace 1–9 |
 | `Mod+Ctrl+1` … `Mod+Ctrl+9` | Move focused column to workspace 1–9 |
 | `Mod+I` / `Mod+U` | Focus workspace up / down |
@@ -127,19 +130,35 @@ above) via `user-keys`, not typed directly into tmux.
 
 `modules/25-ble-sh.sh` installs [ble.sh](https://github.com/akinomyoga/ble.sh) for
 fish/zsh-style ghost-text autosuggestions (grey text predicted from history) and
-syntax highlighting in bash. `blerc` only touches the autosuggestion color and one
-keybinding — everything else is ble.sh's stock behavior.
+syntax highlighting in bash. `blerc` touches the autosuggestion color, Tab's
+completion behavior, and how Enter/Ctrl+U handle multi-line input — everything
+else is ble.sh's stock behavior.
 
 | Keybind | Action |
 |---|---|
-| `Tab` / `End` / `C-f` / `Right` / `C-e` | Accept the grey autosuggestion — only while one is showing and the cursor is at end-of-line; otherwise `Tab` falls back to normal completion |
+| `Tab` (suggestion showing) | Accept the next path segment (up to the next `/`) of the grey autosuggestion; a non-path suggestion (no `/`) is accepted in full. Pressing `Tab` again with nothing left to segment falls through to normal completion (e.g. a command's flags/subcommands) |
+| `End` / `C-f` / `Right` / `C-e` | Accept the whole grey autosuggestion at once — only while one is showing and the cursor is at end-of-line |
 | `Shift+Enter` | Accept the autosuggestion regardless of cursor position |
 | `Ctrl+G` | Dismiss the current autosuggestion |
+| `Enter` | Run the command — including a multi-line paste, immediately, no separate confirmation step |
+| `Ctrl+U` | Clear the entire input buffer (not just back to the start of the current line) |
 
-`Tab` accepting suggestions isn't a ble.sh default — `blerc` adds it
-(`ble-bind -m auto_complete -f TAB auto_complete/insert-on-end`) alongside the
-built-in End/C-f/Right/C-e/Shift+Enter bindings, since expecting Tab to behave
-like fish/zsh's autosuggestion-accept key is the more familiar mental model.
+`Tab`'s per-segment accept is custom (`ble/widget/auto_complete/insert-path-segment`
+in `blerc`, bound to both `TAB` and `C-i` since a physical Tab keypress can decode
+as either depending on terminal negotiation), replacing ble.sh's plain "accept
+everything" default: history-based suggestions default to your most-used past
+path, which is often wrong once you're headed somewhere that only shares a
+prefix with it — accepting one segment at a time lets you type past a stale
+suggestion instead of it barreling ahead of you.
+
+`Enter`/`Ctrl+U` on multi-line input are also custom. Stock ble.sh pauses on a
+pasted multi-line command with a `-- MULTILINE --` prompt (`RET`/`C-m` insert
+another newline, only `C-j` actually runs it), and `Ctrl+U` only kills back to
+the start of the current line. `blerc` rebinds `RET`/`C-m` straight to
+`accept-line` (so Enter always runs it, matching `C-j`, and the now-stale
+"insert a newline / C-j: run" hint is dropped from the status line) and adds a
+`kill-whole-buffer` widget on `Ctrl+U` so it clears the whole pasted block
+regardless of cursor position.
 
 ## Neovim / LazyVim
 
